@@ -1,6 +1,6 @@
 configuration: 
   name: hellobioqa
-  author: oaqa
+  author: team15
   
 persistence-provider:
   inherit: helloqa.db.local-persistence-provider
@@ -11,9 +11,10 @@ collection-reader:
   file: /input/trecgen06.txt
 
 pipeline:
-  - inherit: jdbc.sqlite.cse.phase  
+  - inherit: jdbc.sqlite.cse.phase
     name: keyterm-extractor
     options: |
+      - inherit: hellobioqa.team15.keyterm.bolei-database-keyterm-extractor
       - inherit: helloqa.keyterm.simple
 
   - inherit: jdbc.sqlite.cse.phase 

@@ -1,0 +1,4 @@
+class: java.edu.cmu.lti.oaqa.openqa.test.team15.keyterm.BoLeiDatabaseKeytermExtractor
+
+persistence-provider: |
+  inherit: ecd.default-log-persistence-provider
