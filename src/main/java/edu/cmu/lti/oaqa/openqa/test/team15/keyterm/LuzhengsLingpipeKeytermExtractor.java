@@ -20,14 +20,16 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 	 */
 	protected List<Keyterm> getKeyterms(String question){
 		try {
-			File modelFile = new File("src/main/resources/hellobioqa/model/ne-en-bio-genetag.HmmChunker");
+			File modelFile = new File("src/main/resources/model/ne-en-bio-genetag.HmmChunker");
 			Chunker chunker = (Chunker) AbstractExternalizable.readObject(modelFile);
 			Chunking chunking = chunker.chunk(question);
 			Set<Chunk> chunkSet = chunking.chunkSet();
 			Iterator<Chunk> it = chunkSet.iterator(); 
 			List<Keyterm> keyterms = new ArrayList<Keyterm>();
-			while(it.hasNext())
-				keyterms.add(new Keyterm(it.next().toString()));
+			while(it.hasNext()) {
+				Chunk presentChunk = it.next();
+				keyterms.add(new Keyterm(question.substring(presentChunk.start(), presentChunk.end())));
+			}
 			return keyterms;
 		} catch(ClassNotFoundException e) {
 			  System.err.println("No definition for the class has been found.");
