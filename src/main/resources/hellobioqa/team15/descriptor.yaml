@@ -1,4 +1,0 @@
-//self added in reference to hw handout
-class: java.edu.cmu.lti.oaqa.openqa.test.team15.FooKeytermExtractor
-persistence-provider: |
-inherit: ecd.default-log-persistence-provider
