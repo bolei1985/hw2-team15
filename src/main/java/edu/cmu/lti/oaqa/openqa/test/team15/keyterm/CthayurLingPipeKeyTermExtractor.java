@@ -18,7 +18,7 @@ import com.aliasi.util.AbstractExternalizable;
 import edu.cmu.lti.oaqa.cse.basephase.keyterm.AbstractKeytermExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 
-public class LingPipeKeyTermExtractor extends AbstractKeytermExtractor {
+public class CthayurLingPipeKeyTermExtractor extends AbstractKeytermExtractor {
 
   @Override
   public void initialize(UimaContext aContext) throws ResourceInitializationException {
