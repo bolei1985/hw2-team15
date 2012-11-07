@@ -1,6 +1,6 @@
 configuration: 
   name: hellobioqa
-  author: oaqa
+  author: team15
   
 persistence-provider:
   inherit: helloqa.db.local-persistence-provider
@@ -11,12 +11,19 @@ collection-reader:
   file: /input/trecgen06.txt
 
 pipeline:
-  - inherit: jdbc.sqlite.cse.phase  
+  - inherit: jdbc.sqlite.cse.phase
     name: keyterm-extractor
     options: |
-      - inherit: helloqa.keyterm.simple
+      - inherit: hellobioqa.team15.keyterm.bolei-stanford-keyterm-extractor
       - inherit: hellobioqa.team15.keyterm.CthayurLingPipeKeyTerm
+      - inherit: helloqa.keyterm.simple
       - inherit: hellobioqa.team15.keyterm.luzhengsKeytermExtractorDescriptor
+      - inherit: hellobioqa.team15.keyterm.Mingyang-keytermextractor
+  - inherit: jdbc.sqlite.cse.phase
+    
+    name: keyterm-updater
+    options: |
+      - inherit: hellobioqa.team15.keyterm.bolei-database-keyterm-updater
 
   - inherit: jdbc.sqlite.cse.phase 
     name: retrieval-strategist
@@ -50,3 +57,4 @@ post-process:
     builders: |
       - inherit: helloqa.report.map-report-component
   
+>>>>>>> a43e276644245381927cfcabae46f73b4a33970c
