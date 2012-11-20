@@ -34,7 +34,7 @@ public class PosTagNamedEntityRecognizer {
       List<CoreLabel> candidate = new ArrayList<CoreLabel>();
       for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
         String pos = token.get(PartOfSpeechAnnotation.class);
-        if (pos.startsWith("NN")) {
+        if (pos.startsWith("VB")) {
           candidate.add(token);
         } else if (candidate.size() > 0) {
           int begin = candidate.get(0).beginPosition();

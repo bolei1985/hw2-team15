@@ -20,7 +20,7 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 	 */
 	protected List<Keyterm> getKeyterms(String question){
 		try {
-			File modelFile = new File("src/main/resources/model/ne-en-bio-genetag.HmmChunker");
+			File modelFile = new File("src/main/resources/model/ne-en-bio-genia.TokenShapeChunker");
 			Chunker chunker = (Chunker) AbstractExternalizable.readObject(modelFile);
 			Chunking chunking = chunker.chunk(question);
 			Set<Chunk> chunkSet = chunking.chunkSet();
