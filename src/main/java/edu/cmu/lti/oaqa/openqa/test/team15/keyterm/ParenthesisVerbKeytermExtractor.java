@@ -61,7 +61,7 @@ public class ParenthesisVerbKeytermExtractor extends AbstractKeytermExtractor {
 			e.printStackTrace();
 		}
 
-		
+		System.out.println(keyterms.toString());
 		return keyterms;
 	}
 }
