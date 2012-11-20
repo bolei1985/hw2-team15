@@ -1,7 +1,10 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -61,7 +64,13 @@ public class ParenthesisVerbKeytermExtractor extends AbstractKeytermExtractor {
 			e.printStackTrace();
 		}
 
-		System.out.println(keyterms.toString());
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream("W:/keyterm extraction.txt", true));
+			pw.println(keyterms.toString());
+			pw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		return keyterms;
 	}
 }
