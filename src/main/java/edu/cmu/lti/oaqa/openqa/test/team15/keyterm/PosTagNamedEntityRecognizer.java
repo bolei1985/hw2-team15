@@ -1,7 +1,5 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,36 +31,26 @@ public class PosTagNamedEntityRecognizer {
     Annotation document = new Annotation(text);
     pipeline.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-    try {
-    	PrintWriter pw = new PrintWriter(new FileOutputStream("W:/tokens.txt", true));
-	    for (CoreMap sentence : sentences) {
-	      List<CoreLabel> candidate = new ArrayList<CoreLabel>();
-	      for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
-	        String pos = token.get(PartOfSpeechAnnotation.class);
-	  			// print the keyterms out in a file 	
-	  			pw.print(pos + " ");
-	  		
-		        if (pos.matches("VB|VBP")) {
-		          candidate.add(token);
-		        } else if (candidate.size() > 0) {
-		          int begin = candidate.get(0).beginPosition();
-		          int end = candidate.get(candidate.size() - 1).endPosition();
-		          begin2end.put(begin, end);
-		          candidate.clear();
-		        }
-	  		}
-	      if (candidate.size() > 0) {
-	        int begin = candidate.get(0).beginPosition();
+    for (CoreMap sentence : sentences) {
+    	List<CoreLabel> candidate = new ArrayList<CoreLabel>();
+	    for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
+		    String pos = token.get(PartOfSpeechAnnotation.class);	  		
+		    if (pos.matches("VB|VBP")) 
+		    	candidate.add(token);
+		    else if (candidate.size() > 0) {
+		    	int begin = candidate.get(0).beginPosition();
+		        int end = candidate.get(candidate.size() - 1).endPosition();
+		        begin2end.put(begin, end);
+		        candidate.clear();
+		     }
+		}
+	    if (candidate.size() > 0) {
+	    	int begin = candidate.get(0).beginPosition();
 	        int end = candidate.get(candidate.size() - 1).endPosition();
 	        begin2end.put(begin, end);
 	        candidate.clear();
-	      }
-	      pw.println();  	 
 	    }
-    pw.close();
-    } catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+	}
     return begin2end;
   }
 }
