@@ -58,12 +58,16 @@ public class ParenthesisVerbKeytermExtractor extends AbstractKeytermExtractor {
 			Map<Integer, Integer> spans = posTaggerAnno.getGeneSpans(question);
 		    Set<Entry<Integer, Integer>> entrySet = spans.entrySet();
 		    for (Entry<Integer, Integer> entry : entrySet) {
-		      keyterms.add(new Keyterm(question.substring(entry.getKey(), entry.getValue())));
+		    	String verb = question.substring(entry.getKey(), entry.getValue());
+		    	if (verb.equals("do"))
+		    		continue;
+		      keyterms.add(new Keyterm(verb));
 		    }
 		} catch(ResourceInitializationException e) {
 			e.printStackTrace();
 		}
 
+		// print the keyterms out in a file 
 		try {
 			PrintWriter pw = new PrintWriter(new FileOutputStream("W:/keyterm extraction.txt", true));
 			pw.println(keyterms.toString());
