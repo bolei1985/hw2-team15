@@ -1,15 +1,10 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.Map.Entry;
-
 import org.apache.uima.resource.ResourceInitializationException;
-
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
 import com.aliasi.chunk.Chunking;
@@ -17,6 +12,7 @@ import com.aliasi.util.AbstractExternalizable;
 
 import edu.cmu.lti.oaqa.cse.basephase.keyterm.AbstractKeytermExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
+import edu.stanford.nlp.io.EncodingPrintWriter.out;
 
 public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 	@Override
@@ -59,9 +55,10 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 		    Set<Entry<Integer, Integer>> entrySet = spans.entrySet();
 		    for (Entry<Integer, Integer> entry : entrySet) {
 		    	String verb = question.substring(entry.getKey(), entry.getValue());
-		    	if (verb.equals("do"))
+		    	// remove the word "do"
+		    	if(verb.equals("do"))
 		    		continue;
-		      keyterms.add(new Keyterm(verb));
+		    	keyterms.add(new Keyterm(verb));
 		    }
 		} catch(ResourceInitializationException e) {
 			e.printStackTrace();
