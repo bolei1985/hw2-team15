@@ -1,4 +1,5 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,25 +32,25 @@ public class PosTagNamedEntityRecognizer {
     pipeline.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
     for (CoreMap sentence : sentences) {
-      List<CoreLabel> candidate = new ArrayList<CoreLabel>();
-      for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
-        String pos = token.get(PartOfSpeechAnnotation.class);
-        if (pos.startsWith("NN")) {
-          candidate.add(token);
-        } else if (candidate.size() > 0) {
-          int begin = candidate.get(0).beginPosition();
-          int end = candidate.get(candidate.size() - 1).endPosition();
-          begin2end.put(begin, end);
-          candidate.clear();
-        }
-      }
-      if (candidate.size() > 0) {
-        int begin = candidate.get(0).beginPosition();
-        int end = candidate.get(candidate.size() - 1).endPosition();
-        begin2end.put(begin, end);
-        candidate.clear();
-      }
-    }
+    	List<CoreLabel> candidate = new ArrayList<CoreLabel>();
+	    for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
+		    String pos = token.get(PartOfSpeechAnnotation.class);	  		
+		    if (pos.matches("VB|VBP")) 
+		    	candidate.add(token);
+		    else if (candidate.size() > 0) {
+		    	int begin = candidate.get(0).beginPosition();
+		        int end = candidate.get(candidate.size() - 1).endPosition();
+		        begin2end.put(begin, end);
+		        candidate.clear();
+		     }
+		}
+	    if (candidate.size() > 0) {
+	    	int begin = candidate.get(0).beginPosition();
+	        int end = candidate.get(candidate.size() - 1).endPosition();
+	        begin2end.put(begin, end);
+	        candidate.clear();
+	    }
+	}
     return begin2end;
   }
 }
