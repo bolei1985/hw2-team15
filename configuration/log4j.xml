@@ -14,14 +14,20 @@
 
 	<appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
 		<param name="Threshold" value="DEBUG" />
-		<param name="File" value="passage_extractor.log" />
+		<param name="File" value="hw2_team15.log" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d
                 %-5p  [%c{1}] %m %n" />
 		</layout>
 	</appender>
 
-	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.passage" additivity="true">
+	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.passage"
+		additivity="true">
+		<level value="DEBUG" />
+		<appender-ref ref="fileAppender" />
+	</logger>
+	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.retrieval"
+		additivity="true">
 		<level value="DEBUG" />
 		<appender-ref ref="fileAppender" />
 	</logger>
