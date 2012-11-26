@@ -145,7 +145,10 @@ public class FuzzyVariantBioSolrRetrievalStrategist extends AbstractRetrievalStr
   private String formulateQuery(List<String> keytermStrList) {
     StringBuilder sb = new StringBuilder();
     for (String keyterm : keytermStrList) {
-      sb.append(keyterm + "~ ");
+      if(keyterm.startsWith("p.")){
+        keyterm = keyterm.substring(2); //remove "p."
+      }
+      sb.append("\""+keyterm + "\" ");
     }
     String query = sb.toString();
     logger.debug("Fuzzy QUERY: " + query);
