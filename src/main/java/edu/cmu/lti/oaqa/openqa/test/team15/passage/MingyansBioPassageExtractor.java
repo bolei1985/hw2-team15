@@ -1,11 +1,9 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.passage;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.jsoup.Jsoup;
 
@@ -20,21 +18,14 @@ import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
 import edu.cmu.lti.oaqa.openqa.hello.passage.SimplePassageExtractor;
 
 public class MingyansBioPassageExtractor extends SimplePassageExtractor {
-  FileWriter output = null;
 
-  BufferedWriter writer = null;
+  private static Logger logger = Logger.getLogger(MingyansBioPassageExtractor.class);
 
   @Override
   protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterms,
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
-    try {
-      output = new FileWriter("document.txt");
-    } catch (IOException e) {
-    }
-
     for (RetrievalResult document : documents) {
-
       System.out.println("RetrievalResult: " + document.toString());
       String id = document.getDocID();
       try {
@@ -46,9 +37,7 @@ public class MingyansBioPassageExtractor extends SimplePassageExtractor {
         text = text.substring(0, Math.min(5000, text.length()));
         // System.out.println(text);
 
-        writer = new BufferedWriter(output);
-        writer.write(document.getDocID()+"\n\r"+text+"\n\r\n\r");
-        writer.flush();
+        logger.debug("\n" + document.getDocID() + "\n\r" + text + "\n\r\n\r");
 
         PassageCandidateFinder finder = new PassageCandidateFinder(id, text,
                 new KeytermWindowScorerSum());
@@ -63,18 +52,8 @@ public class MingyansBioPassageExtractor extends SimplePassageExtractor {
           result.add(passageSpan);
       } catch (SolrServerException e) {
         e.printStackTrace();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
       }
     }
-    if (output != null)
-      try {
-        output.close();
-      } catch (IOException e1) {
-        // TODO Auto-generated catch block
-        e1.printStackTrace();
-      }
     return result;
   }
 }
