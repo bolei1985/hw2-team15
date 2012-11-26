@@ -7,17 +7,14 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
-import edu.cmu.lti.oaqa.openqa.hello.retrieval.SimpleSolrRetrievalStrategist;
 
-public class SimpleBioSolrRetrievalStrategist extends SimpleSolrRetrievalStrategist {
+public class MingyansBioSolrRetrievalStrategist extends MingyansSolrRetrievalStrategist {
 
   protected List<RetrievalResult> retrieveDocuments(String query) {
     List<RetrievalResult> result = new ArrayList<RetrievalResult>();
     try {
       SolrDocumentList docs = wrapper.runQuery(query, hitListSize);
-
       for (SolrDocument doc : docs) {
-
         RetrievalResult r = new RetrievalResult((String) doc.getFieldValue("id"),
                 (Float) doc.getFieldValue("score"), query);
         result.add(r);
@@ -28,5 +25,4 @@ public class SimpleBioSolrRetrievalStrategist extends SimpleSolrRetrievalStrateg
     }
     return result;
   }
-
 }
