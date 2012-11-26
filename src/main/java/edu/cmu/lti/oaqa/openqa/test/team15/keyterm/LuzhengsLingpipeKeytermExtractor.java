@@ -2,9 +2,13 @@ package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
 import org.apache.uima.resource.ResourceInitializationException;
 
 import com.aliasi.chunk.Chunk;
@@ -48,7 +52,8 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 				  return null;
 			}
 		}
-//		 add in verbs
+		
+		// add in verbs
 		try {
 			PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();
 			Map<Integer, Integer> spans = posTaggerAnno.getGeneSpans(question);
