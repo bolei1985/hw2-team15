@@ -19,11 +19,6 @@ pipeline:
       - inherit: hellobioqa.team15.keyterm.CthayurLingPipeKeyTerm
       - inherit: hellobioqa.team15.keyterm.Mingyang-keytermextractor
       - inherit: helloqa.keyterm.simple
-  - inherit: jdbc.sqlite.cse.phase
-    
-    name: keyterm-updater
-    options: |
-      - inherit: hellobioqa.team15.keyterm.bolei-database-keyterm-updater
 
   - inherit: jdbc.sqlite.cse.phase 
     name: retrieval-strategist

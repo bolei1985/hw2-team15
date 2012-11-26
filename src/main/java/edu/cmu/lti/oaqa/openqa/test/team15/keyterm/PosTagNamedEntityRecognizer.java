@@ -26,15 +26,18 @@ public class PosTagNamedEntityRecognizer {
   }
 
   public Map<Integer, Integer> getGeneSpans(String text) {
+    
+    String newText = text.replaceAll(" is ", " in ").replaceAll(" do ", " in ").replaceAll(" does ", " this ");
+    
     Map<Integer, Integer> begin2end = new HashMap<Integer, Integer>();
-    Annotation document = new Annotation(text);
+    Annotation document = new Annotation(newText);
     pipeline.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
     for (CoreMap sentence : sentences) {
       List<CoreLabel> candidate = new ArrayList<CoreLabel>();
       for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
         String pos = token.get(PartOfSpeechAnnotation.class);
-        if (pos.startsWith("NN")) {
+        if (pos.startsWith("NN") || pos.startsWith("JJ") || pos.startsWith("VB")) {
           candidate.add(token);
         } else if (candidate.size() > 0) {
           int begin = candidate.get(0).beginPosition();
