@@ -31,6 +31,7 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
     String core = (String) aContext.getConfigParameterValue("core");
     String keytermWindowScorer = (String) aContext.getConfigParameterValue("keytermWindowScorer");
     System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
+    
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
