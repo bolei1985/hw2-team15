@@ -29,9 +29,8 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
     Integer serverPort = (Integer) aContext.getConfigParameterValue("port");
     Boolean embedded = (Boolean) aContext.getConfigParameterValue("embedded");
     String core = (String) aContext.getConfigParameterValue("core");
-    // String keytermWindowScorer = (String)aContext.getConfigParameterValue( "keytermWindowScorer"
-    // );
-    // System.out.println( "initialize() : keytermWindowScorer: " + keytermWindowScorer );
+    String keytermWindowScorer = (String) aContext.getConfigParameterValue("keytermWindowScorer");
+    System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
@@ -48,10 +47,8 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
       String id = document.getDocID();
       try {
         String text = wrapper.getDocText(id);
-//        System.out.println(text);
-        
-        
-        
+        // System.out.println(text);
+
         MingyansPassageCandidateFinder finder = new MingyansPassageCandidateFinder(id, text,
                 new KeytermWindowScorerSum());
         List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {

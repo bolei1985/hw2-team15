@@ -16,8 +16,6 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
-import com.aliasi.tokenizer.PorterStemmerTokenizerFactory;
-
 import edu.cmu.lti.oaqa.core.provider.solr.SolrWrapper;
 import edu.cmu.lti.oaqa.cse.basephase.retrieval.AbstractRetrievalStrategist;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
