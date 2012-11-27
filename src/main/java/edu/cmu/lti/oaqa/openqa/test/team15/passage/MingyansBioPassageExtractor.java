@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -13,8 +14,11 @@ import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
+import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
+import edu.cmu.lti.oaqa.openqa.hello.passage.SimplePassageExtractor;
 
-public class MingyansBioPassageExtractor extends MingyansPassageExtractor {
+
+public class MingyansBioPassageExtractor extends SimplePassageExtractor {
 
 //  private static Logger logger = Logger.getLogger(MingyansBioPassageExtractor.class);
 
@@ -27,15 +31,16 @@ public class MingyansBioPassageExtractor extends MingyansPassageExtractor {
       String id = document.getDocID();
       try {
         String htmlText = wrapper.getDocText(id);
+
         // cleaning HTML text
         String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/* .trim() */;
         // for now, making sure the text isn't too long
         text = text.substring(0, Math.min(5000, text.length()));
         // System.out.println(text);
 
-//      logger.debug("\n" + document.getDocID() + "\n\r" + text + "\n\r\n\r");
+//        logger.debug("\n" + document.getDocID() + "\n\r" + text + "\n\r\n\r");
 
-        MingyansPassageCandidateFinder finder = new MingyansPassageCandidateFinder(id, text,
+        PassageCandidateFinder finder = new PassageCandidateFinder(id, text,
                 new KeytermWindowScorerSum());
         List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
           public String apply(Keyterm keyterm) {
