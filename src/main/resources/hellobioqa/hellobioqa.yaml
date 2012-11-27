@@ -22,8 +22,8 @@ pipeline:
     name: retrieval-strategist
     options: |
       - inherit: hellobioqa.team15.retrieval.mingyans-solr-strategist
-      - inherit: hellobioqa.team15.retrieval.solr-fuzzy-variant-strategist
-      - inherit: hellobioqa.team15.retrieval.simple-solr-strategist
+      #- inherit: hellobioqa.team15.retrieval.solr-fuzzy-variant-strategist
+      #- inherit: hellobioqa.team15.retrieval.simple-solr-strategist
 
   - inherit: jdbc.sqlite.cse.phase  
     name: passage-extractor
