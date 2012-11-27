@@ -66,13 +66,13 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
       String key = keyterm.getText();
       result.append(key + " ");
       String[] keys = key.split(" ");
-//    PorterStemmerTokenizerFactory factory = new PorterStemmerTokenizerFactory(factory);
+      // PorterStemmerTokenizerFactory factory = new PorterStemmerTokenizerFactory(factory);
       for (String a : keys) {
         List<String> json = HttpGet(a);
 
         if (json != null) {
           for (String j : json) {
-            result.append("\""+j+"\"" + " ");
+            result.append("\"" + j + "\"" + " ");
             System.out.println(j);
           }
         }
@@ -118,7 +118,7 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
       String line;
       strResult = new LinkedList<String>();
       int count = 2;
-      while (((line = br.readLine()) != null ) && count>0) {
+      while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
         if (res[1].equals("syn") && res[0].equals("noun") || res[0].equals("adjective")) {
           strResult.add(res[2]);
