@@ -13,7 +13,7 @@ import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorer;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerProduct;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
 
-public class PassageCandidateFinder {
+public class MingyansPassageCandidateFinder {
   private String text;
   private String docId;
   
@@ -23,7 +23,7 @@ public class PassageCandidateFinder {
   
   private KeytermWindowScorer scorer;
   
-  public PassageCandidateFinder( String docId , String text , KeytermWindowScorer scorer ) {
+  public MingyansPassageCandidateFinder( String docId , String text , KeytermWindowScorer scorer ) {
     super();
     this.text = text;
     this.docId = docId;
@@ -126,10 +126,22 @@ public class PassageCandidateFinder {
     }
   }
   
+  public double scoreWindowSum ( int begin , int end , int matchesFound , int totalMatches , int keytermsFound , int totalKeyterms , int textSize ){
+    int windowSize = end - begin;
+    double offsetScore = ( (double)textSize - (double)begin ) / (double)textSize;
+    return ( .25d * (double)matchesFound / (double)totalMatches ) + .25d * ( (double)keytermsFound / (double)totalKeyterms) + .25d * ( 1 - ( (double)windowSize / (double)textSize ) + .25d * offsetScore );
+  }
+  
+  public double scoreWindowProdcut ( int begin , int end , int matchesFound , int totalMatches , int keytermsFound , int totalKeyterms , int textSize ){
+    int windowSize = end - begin;
+    double offsetScore = ( (double)textSize - (double)begin ) / (double)textSize;
+    return ( (double)matchesFound / (double)totalMatches ) * ( (double)keytermsFound / (double)totalKeyterms) * ( 1 - ( (double)windowSize / (double)textSize ) * offsetScore );
+  }
+  
   public static void main ( String[] args ) {
-    PassageCandidateFinder passageFinder1 = new PassageCandidateFinder( "1" , "The quick brown fox jumped over the quick brown fox." ,
+    MingyansPassageCandidateFinder passageFinder1 = new MingyansPassageCandidateFinder( "1" , "The quick brown fox jumped over the quick brown fox." ,
         new KeytermWindowScorerProduct() );
-    PassageCandidateFinder passageFinder2 = new PassageCandidateFinder( "1" , "The quick brown fox jumped over the quick brown fox." ,
+    MingyansPassageCandidateFinder passageFinder2 = new MingyansPassageCandidateFinder( "1" , "The quick brown fox jumped over the quick brown fox." ,
         new KeytermWindowScorerSum() );
     String[] keyterms = { "quick" , "jumped" };
     List<PassageCandidate> windows1 = passageFinder1.extractPassages( keyterms );
