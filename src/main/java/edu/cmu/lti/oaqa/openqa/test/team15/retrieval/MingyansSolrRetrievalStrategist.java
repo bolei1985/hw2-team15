@@ -117,10 +117,10 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
       BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
       String line;
       strResult = new LinkedList<String>();
-      int count = 3;
+      int count = 2;
       while (((line = br.readLine()) != null ) && count>0) {
         String[] res = line.split("\\|");
-        if (res[1].equals("syn") && res[0].equals("noun")) {
+        if (res[1].equals("syn") && res[0].equals("noun") || res[0].equals("adjective")) {
           strResult.add(res[2]);
         }
         count--;
