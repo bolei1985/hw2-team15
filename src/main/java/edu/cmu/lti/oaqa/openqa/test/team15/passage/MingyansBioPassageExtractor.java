@@ -3,7 +3,6 @@ package edu.cmu.lti.oaqa.openqa.test.team15.passage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.jsoup.Jsoup;
 
@@ -14,12 +13,10 @@ import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
-import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
-import edu.cmu.lti.oaqa.openqa.hello.passage.SimplePassageExtractor;
 
-public class MingyansBioPassageExtractor extends SimplePassageExtractor {
+public class MingyansBioPassageExtractor extends MingyansPassageExtractor {
 
-  private static Logger logger = Logger.getLogger(MingyansBioPassageExtractor.class);
+//  private static Logger logger = Logger.getLogger(MingyansBioPassageExtractor.class);
 
   @Override
   protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterms,
@@ -30,16 +27,15 @@ public class MingyansBioPassageExtractor extends SimplePassageExtractor {
       String id = document.getDocID();
       try {
         String htmlText = wrapper.getDocText(id);
-
         // cleaning HTML text
         String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/* .trim() */;
         // for now, making sure the text isn't too long
         text = text.substring(0, Math.min(5000, text.length()));
         // System.out.println(text);
 
-        logger.debug("\n" + document.getDocID() + "\n\r" + text + "\n\r\n\r");
+//      logger.debug("\n" + document.getDocID() + "\n\r" + text + "\n\r\n\r");
 
-        PassageCandidateFinder finder = new PassageCandidateFinder(id, text,
+        MingyansPassageCandidateFinder finder = new MingyansPassageCandidateFinder(id, text,
                 new KeytermWindowScorerSum());
         List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
           public String apply(Keyterm keyterm) {

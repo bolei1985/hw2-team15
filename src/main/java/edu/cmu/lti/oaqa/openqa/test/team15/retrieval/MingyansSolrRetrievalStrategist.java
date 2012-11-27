@@ -27,6 +27,8 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
 
   protected SolrWrapper wrapper;
 
+  protected String synAPI = null;
+
   @Override
   public void initialize(UimaContext aContext) throws ResourceInitializationException {
     super.initialize(aContext);
@@ -40,6 +42,7 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     Integer serverPort = (Integer) aContext.getConfigParameterValue("port");
     Boolean embedded = (Boolean) aContext.getConfigParameterValue("embedded");
     String core = (String) aContext.getConfigParameterValue("core");
+    synAPI = (String) aContext.getConfigParameterValue("synapi");
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
@@ -58,19 +61,22 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     StringBuffer result = new StringBuffer();
 
     for (Keyterm keyterm : keyterms) {
-      System.out.println(keyterm.getText());
-      List<String> json = HttpGet(keyterm.getText());
-      result.append(keyterm.getText() + " ");
-      if (json != null) {
-        for (String j : json) {
-          result.append("\"" + j + "\"" + " ");
-          System.out.println(j);
+      String key = keyterm.getText();
+      result.append(key + " ");
+      String[] keys = key.split(" ");
+      // PorterStemmerTokenizerFactory factory = new PorterStemmerTokenizerFactory(factory);
+      for (String a : keys) {
+        List<String> json = HttpGet(a);
+
+        if (json != null) {
+          for (String j : json) {
+            result.append("\"" + j + "\"" + " ");
+            System.out.println(j);
+          }
         }
       }
     }
-    
-    
-    System.out.println("@@@@@@@@@@");
+
     String query = result.toString();
     System.out.println(" QUERY: " + query);
     return query;
@@ -98,11 +104,10 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     wrapper.close();
   }
 
-  public static List<String> HttpGet(String word) {
+  private List<String> HttpGet(String word) {
     List<String> strResult = null;
     try {
-      URL url = new URL("http://words.bighugelabs.com/api/2/e292deaa9aed63cbd584671802cfcfd9/"
-              + word + "/");
+      URL url = new URL(synAPI + word + "/");
       System.out.println(url);
       URLConnection urlConnection = url.openConnection();
       urlConnection.setDoInput(true);
@@ -110,11 +115,13 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
       BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
       String line;
       strResult = new LinkedList<String>();
-      while ((line = br.readLine()) != null) {
+      int count = 2;
+      while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
-        if (res[1].equals("syn")) {
+        if (res[1].equals("syn") && res[0].equals("noun") || res[0].equals("adjective")) {
           strResult.add(res[2]);
         }
+        count--;
       }
     } catch (IOException e) {
     }

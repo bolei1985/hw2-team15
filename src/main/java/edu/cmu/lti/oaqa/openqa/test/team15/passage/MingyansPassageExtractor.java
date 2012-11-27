@@ -29,9 +29,8 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
     Integer serverPort = (Integer) aContext.getConfigParameterValue("port");
     Boolean embedded = (Boolean) aContext.getConfigParameterValue("embedded");
     String core = (String) aContext.getConfigParameterValue("core");
-    // String keytermWindowScorer = (String)aContext.getConfigParameterValue( "keytermWindowScorer"
-    // );
-    // System.out.println( "initialize() : keytermWindowScorer: " + keytermWindowScorer );
+    String keytermWindowScorer = (String) aContext.getConfigParameterValue("keytermWindowScorer");
+    System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
@@ -40,23 +39,27 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   }
 
   @Override
-  protected List<PassageCandidate> extractPassages( String question, List<Keyterm> keyterms, List<RetrievalResult> documents ) {
+  protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterms,
+          List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
-    for ( RetrievalResult document : documents ) {
-      System.out.println( "RetrievalResult: " + document.toString() );
+    for (RetrievalResult document : documents) {
+      System.out.println("RetrievalResult: " + document.toString());
       String id = document.getDocID();
       try {
-        // @Alkesh: can you add this call to the SolrWrapper API? - Now work with solr-provider 1.0.5-SNAPSHOT
-        String text = wrapper.getDocText( id );
-        System.out.println(text);
-        PassageCandidateFinder finder = new PassageCandidateFinder( id , text , new KeytermWindowScorerSum() );
-        // @EHN: to avoid ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;
+        String text = wrapper.getDocText(id);
+        // System.out.println(text);
+
+        MingyansPassageCandidateFinder finder = new MingyansPassageCandidateFinder(id, text,
+                new KeytermWindowScorerSum());
         List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
-          public String apply(Keyterm keyterm) { return keyterm.getText(); }
+          public String apply(Keyterm keyterm) {
+            return keyterm.getText();
+          }
         });
-        List<PassageCandidate> passageSpans = finder.extractPassages( keytermStrings.toArray(new String[0]) );
-        for ( PassageCandidate passageSpan : passageSpans )
-          result.add( passageSpan );
+        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings
+                .toArray(new String[0]));
+        for (PassageCandidate passageSpan : passageSpans)
+          result.add(passageSpan);
       } catch (SolrServerException e) {
         e.printStackTrace();
       }
@@ -69,5 +72,4 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
     super.collectionProcessComplete();
     wrapper.close();
   }
-  
 }
