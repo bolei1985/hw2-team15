@@ -1,13 +1,6 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.retrieval;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.solr.common.SolrDocument;
@@ -42,7 +35,7 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     Integer serverPort = (Integer) aContext.getConfigParameterValue("port");
     Boolean embedded = (Boolean) aContext.getConfigParameterValue("embedded");
     String core = (String) aContext.getConfigParameterValue("core");
-    synAPI = (String) aContext.getConfigParameterValue("synapi");
+    // synAPI = (String) aContext.getConfigParameterValue("synapi");
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
@@ -63,18 +56,18 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     for (Keyterm keyterm : keyterms) {
       String key = keyterm.getText();
       result.append(key + " ");
-      String[] keys = key.split(" ");
+      // String[] keys = key.split(" ");
       // PorterStemmerTokenizerFactory factory = new PorterStemmerTokenizerFactory(factory);
-      for (String a : keys) {
-        List<String> json = HttpGet(a);
-
-        if (json != null) {
-          for (String j : json) {
-            result.append("\"" + j + "\"" + " ");
-            System.out.println(j);
-          }
-        }
-      }
+      // for (String a : keys) {
+      // List<String> json = HttpGet(a);
+      //
+      // if (json != null) {
+      // for (String j : json) {
+      // result.append("\"" + j + "\"" + " ");
+      // System.out.println(j);
+      // }
+      // }
+      // }
     }
 
     String query = result.toString();
@@ -103,27 +96,27 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     wrapper.close();
   }
 
-  private List<String> HttpGet(String word) {
-    List<String> strResult = null;
-    try {
-      URL url = new URL(synAPI + word + "/");
-      System.out.println(url);
-      URLConnection urlConnection = url.openConnection();
-      urlConnection.setDoInput(true);
-      InputStream in = urlConnection.getInputStream();
-      BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
-      String line;
-      strResult = new LinkedList<String>();
-      int count = 2;
-      while (((line = br.readLine()) != null) && count > 0) {
-        String[] res = line.split("\\|");
-        if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("adjective"))) {
-          strResult.add(res[2]);
-        }
-        count--;
-      }
-    } catch (IOException e) {
-    }
-    return strResult;
-  }
+  // private List<String> HttpGet(String word) {
+  // List<String> strResult = null;
+  // try {
+  // URL url = new URL(synAPI + word + "/");
+  // System.out.println(url);
+  // URLConnection urlConnection = url.openConnection();
+  // urlConnection.setDoInput(true);
+  // InputStream in = urlConnection.getInputStream();
+  // BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
+  // String line;
+  // strResult = new LinkedList<String>();
+  // int count = 2;
+  // while (((line = br.readLine()) != null) && count > 0) {
+  // String[] res = line.split("\\|");
+  // if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("adjective"))) {
+  // strResult.add(res[2]);
+  // }
+  // count--;
+  // }
+  // } catch (IOException e) {
+  // }
+  // return strResult;
+  // }
 }
