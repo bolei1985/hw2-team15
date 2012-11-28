@@ -10,10 +10,8 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorer;
-import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerProduct;
-import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
 
-public class MingyansPassageCandidateFinder {
+public class MingyansMultitextPassageFinder {
   private String text;
   private String docId;
   
@@ -23,12 +21,11 @@ public class MingyansPassageCandidateFinder {
   
   private KeytermWindowScorer scorer;
   
-  public MingyansPassageCandidateFinder( String docId , String text , KeytermWindowScorer scorer ) {
+  public MingyansMultitextPassageFinder( String docId , String text  ) {
     super();
     this.text = text;
     this.docId = docId;
     this.textSize = text.length();
-    this.scorer = scorer;
   }
   public List<PassageCandidate> extractPassages( String[] keyterms ) {
     List<List<PassageSpan>> matchingSpans = new ArrayList<List<PassageSpan>>();
@@ -38,6 +35,10 @@ public class MingyansPassageCandidateFinder {
     for ( String keyterm : keyterms ) {
       Pattern p = Pattern.compile( keyterm );
       Matcher m = p.matcher( text );
+      
+      
+      
+      
       while ( m.find() ) {
         PassageSpan match = new PassageSpan( m.start() , m.end() ) ;
         matchedSpans.add( match );
@@ -97,19 +98,6 @@ public class MingyansPassageCandidateFinder {
     return result;
 
   }
-  private class PassageCandidateComparator implements Comparator {
-    // Ranks by score, decreasing.
-    public int compare( Object o1 , Object o2 ) {
-      PassageCandidate s1 = (PassageCandidate)o1;
-      PassageCandidate s2 = (PassageCandidate)o2;
-      if ( s1.getProbability() < s2.getProbability() ) {
-        return 1;
-      } else if ( s1.getProbability() > s2.getProbability() ) {
-        return -1;
-      }
-      return 0;
-    }   
-  }
 
   class PassageSpan {
     private int begin, end;
@@ -137,18 +125,5 @@ public class MingyansPassageCandidateFinder {
     double offsetScore = ( (double)textSize - (double)begin ) / (double)textSize;
     return ( (double)matchesFound / (double)totalMatches ) * ( (double)keytermsFound / (double)totalKeyterms) * ( 1 - ( (double)windowSize / (double)textSize ) * offsetScore );
   }
-  
-  public static void main ( String[] args ) {
-    MingyansPassageCandidateFinder passageFinder1 = new MingyansPassageCandidateFinder( "1" , "The quick brown fox jumped over the quick brown fox." ,
-        new KeytermWindowScorerProduct() );
-    MingyansPassageCandidateFinder passageFinder2 = new MingyansPassageCandidateFinder( "1" , "The quick brown fox jumped over the quick brown fox." ,
-        new KeytermWindowScorerSum() );
-    String[] keyterms = { "quick" , "jumped" };
-    List<PassageCandidate> windows1 = passageFinder1.extractPassages( keyterms );
-    System.out.println( "Windows (product scoring): " + windows1 );
-    List<PassageCandidate> windows2 = passageFinder2.extractPassages( keyterms );
-    System.out.println( "Windows (sum scoring): " + windows2 );
-  }
-  
 
 }
