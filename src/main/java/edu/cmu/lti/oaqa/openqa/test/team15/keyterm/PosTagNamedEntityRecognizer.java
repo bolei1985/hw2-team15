@@ -35,7 +35,7 @@ public class PosTagNamedEntityRecognizer {
     	List<CoreLabel> candidate = new ArrayList<CoreLabel>();
 	    for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
 		    String pos = token.get(PartOfSpeechAnnotation.class);	  		
-		    if (pos.matches("VB|VBP")) 
+		    if (pos.matches("NN")) 
 		    	candidate.add(token);
 		    else if (candidate.size() > 0) {
 		    	int begin = candidate.get(0).beginPosition();
@@ -52,5 +52,19 @@ public class PosTagNamedEntityRecognizer {
 	    }
 	}
     return begin2end;
+  }
+  
+  // Given a string, return the POS of the string as another string
+  public String getPOS(String term) {
+	    Annotation document = new Annotation(term);
+	    StringBuffer pos = new StringBuffer();
+	    pipeline.annotate(document);
+	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+	    for (CoreMap sentence : sentences) {
+		    for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
+			    pos.append(token.get(PartOfSpeechAnnotation.class) + " ");	  		
+			}
+	    }
+	    return pos.toString();
   }
 }
