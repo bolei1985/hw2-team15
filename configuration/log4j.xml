@@ -21,6 +21,11 @@
 		</layout>
 	</appender>
 
+	<root>
+		<priority value="debug" />
+		<appender-ref ref="fileAppender" />
+	</root>
+
 	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.passage"
 		additivity="true">
 		<level value="DEBUG" />
