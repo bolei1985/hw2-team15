@@ -28,7 +28,7 @@ public class SimpleBioBoLeiPassageExtractor extends SimplePassageExtractor {
       logger.debug("RetrievalResult: " + id);
       try {
         String htmlText = wrapper.getDocText(id);
-        htmlText = htmlText.substring(0, 8000);
+        htmlText = htmlText.substring(0, htmlText.length() > 7000 ? 7000 : htmlText.length());
         BoLeiTfIdfCandidateFinder finder = new BoLeiTfIdfCandidateFinder(id);
         List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
           public String apply(Keyterm keyterm) {
