@@ -1,9 +1,10 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.Map.Entry;
+
+import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
@@ -12,9 +13,24 @@ import com.aliasi.util.AbstractExternalizable;
 
 import edu.cmu.lti.oaqa.cse.basephase.keyterm.AbstractKeytermExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
-import edu.stanford.nlp.io.EncodingPrintWriter.out;
+import edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.KeytermExpander;
+
 
 public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
+	private KeytermExpander expander;
+	
+	@Override
+	public void initialize(UimaContext c) throws ResourceInitializationException{
+		super.initialize(c);
+		String expanderClassName = (String) c.getConfigParameterValue("expander");
+		try {
+			Class<KeytermExpander> clz = (Class<KeytermExpander>) Class.forName(expanderClassName);
+			expander = clz.getConstructor().newInstance(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
 	@Override
 	/*
 	 * exploit lingpipe to extract gene-related key terms
@@ -25,8 +41,7 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 		List<Keyterm> keyterms = new ArrayList<Keyterm>();
 		
 		String[] questionParts = question.split("\\(|\\)");
-		for(String questionPart : questionParts) { 
-			System.out.println(questionPart);
+		for(String questionPart : questionParts) {
 			try {
 				Chunker chunker = (Chunker) AbstractExternalizable.readObject(modelFile);
 				Chunking chunking = chunker.chunk(questionPart);
@@ -35,7 +50,8 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 			
 				while(it.hasNext()) {
 					Chunk presentChunk = it.next();
-					keyterms.add(new Keyterm(questionPart.substring(presentChunk.start(), presentChunk.end())));
+					String presentTerm = questionPart.substring(presentChunk.start(), presentChunk.end());
+					keyterms.add(new Keyterm(presentTerm));
 				}
 			} catch(ClassNotFoundException e) {
 				  System.err.println("No definition for the class has been found.");
@@ -48,21 +64,88 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 			}
 		}
 		
-		// add in verbs
+		// add in verbs except the word "do"
 		try {
 			PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();
-			Map<Integer, Integer> spans = posTaggerAnno.getGeneSpans(question);
-		    Set<Entry<Integer, Integer>> entrySet = spans.entrySet();
-		    for (Entry<Integer, Integer> entry : entrySet) {
-		    	String verb = question.substring(entry.getKey(), entry.getValue());
-		    	// remove the word "do"
-		    	if(verb.equals("do"))
-		    		continue;
-		    	keyterms.add(new Keyterm(verb));
-		    }
+			String[] words = question.split(" ");
+			for(String word : words) {
+				if(word == null)
+					continue;
+				String pos = posTaggerAnno.getPOS(word);
+				if(pos.matches("VBP|VB")) {
+					if(word.equals("do"))
+						continue;
+					//TODO expand keyterm
+					
+					keyterms.add(new Keyterm(word));
+				}
+			}
 		} catch(ResourceInitializationException e) {
 			e.printStackTrace();
 		}
 		return keyterms;
+	}
+	
+	// get a list of POS of the keyterms
+	protected List<String> getPOSList(List<Keyterm> keyterms) {
+		List<String> posList = new ArrayList<String>();
+		try {
+			PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();		
+			Iterator<Keyterm> keytermIt = keyterms.iterator();
+			while(keytermIt.hasNext()) {
+				String keyterm = keytermIt.next().toString();
+				String pos = posTaggerAnno.getPOS(keyterm);
+				posList.add(pos);		
+			}
+		} catch (ResourceInitializationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+//		// write the POS of the keyterms into a file 
+//		try {
+//			  	PrintStream out = new PrintStream( 
+//				      new BufferedOutputStream(new FileOutputStream("src/main/resources/output/pos.txt", true)));
+//				out.println(posList.toString());
+//				out.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		return posList;
+	}
+	
+	// get a list of weight of the keyterms
+	protected List<Double> getWeightList(List<Keyterm> keyterms) {
+		List<Double> weightList = new ArrayList<Double>();
+		try {
+			PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();		
+			Iterator<Keyterm> keytermIt = keyterms.iterator();
+			while(keytermIt.hasNext()) {
+				String keyterm = keytermIt.next().toString();
+				String pos = posTaggerAnno.getPOS(keyterm);
+				if(pos.matches("VB|VBP")) 
+					weightList.add(0.3);
+				else
+					weightList.add(0.7);			
+			}
+		} catch (ResourceInitializationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+//		// write the weight of the keyterms into a file 
+//		try {
+//			  	PrintStream out = new PrintStream( 
+//				      new BufferedOutputStream(new FileOutputStream("src/main/resources/output/termweight.txt", true)));
+//				out.println(weightList.toString());
+//				out.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		return weightList;
 	}
 }
