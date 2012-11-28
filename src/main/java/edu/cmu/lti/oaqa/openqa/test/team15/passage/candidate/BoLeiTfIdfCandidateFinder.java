@@ -88,7 +88,10 @@ public class BoLeiTfIdfCandidateFinder {
       PassageSpan passage = it.next();
       float score = 0f;
       for (String keyterm : keyterms) {
-        float keytermTf = tfMap.get(keyterm).get(passage);
+        float keytermTf = 0f;
+        if(tfMap.get(keyterm).containsKey(passage)){
+          keytermTf =  tfMap.get(keyterm).get(passage);
+        }
         float keytermIdf = idfMap.get(keyterm);
         score += keytermIdf * keytermTf;
       }
