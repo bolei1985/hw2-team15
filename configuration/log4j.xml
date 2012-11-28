@@ -31,5 +31,10 @@
 		<level value="DEBUG" />
 		<appender-ref ref="fileAppender" />
 	</logger>
+	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.keyterm"
+		additivity="true">
+		<level value="DEBUG" />
+		<appender-ref ref="fileAppender" />
+	</logger>
 
 </log4j:configuration>
