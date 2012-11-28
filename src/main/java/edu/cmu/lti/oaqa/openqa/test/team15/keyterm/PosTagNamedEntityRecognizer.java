@@ -18,53 +18,53 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class PosTagNamedEntityRecognizer {
 
-  private StanfordCoreNLP pipeline;
+	private StanfordCoreNLP pipeline;
 
-  public PosTagNamedEntityRecognizer() throws ResourceInitializationException {
-    Properties props = new Properties();
-    props.put("annotators", "tokenize, ssplit, pos");
-    pipeline = new StanfordCoreNLP(props);
-  }
-
-  public Map<Integer, Integer> getGeneSpans(String text) {
-    Map<Integer, Integer> begin2end = new HashMap<Integer, Integer>();
-    Annotation document = new Annotation(text);
-    pipeline.annotate(document);
-    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-    for (CoreMap sentence : sentences) {
-    	List<CoreLabel> candidate = new ArrayList<CoreLabel>();
-	    for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
-		    String pos = token.get(PartOfSpeechAnnotation.class);	  		
-		    if (pos.matches("NN")) 
-		    	candidate.add(token);
-		    else if (candidate.size() > 0) {
-		    	int begin = candidate.get(0).beginPosition();
-		        int end = candidate.get(candidate.size() - 1).endPosition();
-		        begin2end.put(begin, end);
-		        candidate.clear();
-		     }
-		}
-	    if (candidate.size() > 0) {
-	    	int begin = candidate.get(0).beginPosition();
-	        int end = candidate.get(candidate.size() - 1).endPosition();
-	        begin2end.put(begin, end);
-	        candidate.clear();
-	    }
+	public PosTagNamedEntityRecognizer() throws ResourceInitializationException {
+		Properties props = new Properties();
+		props.put("annotators", "tokenize, ssplit, pos");
+		pipeline = new StanfordCoreNLP(props);
 	}
-    return begin2end;
-  }
-  
-  // Given a string, return the POS of the string as another string
-  public String getPOS(String term) {
-	    Annotation document = new Annotation(term);
-	    StringBuffer pos = new StringBuffer();
-	    pipeline.annotate(document);
-	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-	    for (CoreMap sentence : sentences) {
-		    for (CoreLabel token : sentence.get(TokensAnnotation.class)) {  		
-			    pos.append(token.get(PartOfSpeechAnnotation.class) + " ");	  		
+
+	public Map<Integer, Integer> getGeneSpans(String text) {
+		Map<Integer, Integer> begin2end = new HashMap<Integer, Integer>();
+		Annotation document = new Annotation(text);
+		pipeline.annotate(document);
+		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+		for (CoreMap sentence : sentences) {
+			List<CoreLabel> candidate = new ArrayList<CoreLabel>();
+			for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
+				String pos = token.get(PartOfSpeechAnnotation.class);
+				if (pos.matches("NN"))
+					candidate.add(token);
+				else if (candidate.size() > 0) {
+					int begin = candidate.get(0).beginPosition();
+					int end = candidate.get(candidate.size() - 1).endPosition();
+					begin2end.put(begin, end);
+					candidate.clear();
+				}
 			}
-	    }
-	    return pos.toString();
-  }
+			if (candidate.size() > 0) {
+				int begin = candidate.get(0).beginPosition();
+				int end = candidate.get(candidate.size() - 1).endPosition();
+				begin2end.put(begin, end);
+				candidate.clear();
+			}
+		}
+		return begin2end;
+	}
+
+	// Given a string, return the POS of the string as another string
+	public String getPOS(String term) {
+		Annotation document = new Annotation(term);
+		StringBuffer pos = new StringBuffer();
+		pipeline.annotate(document);
+		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+		for (CoreMap sentence : sentences) {
+			for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
+				pos.append(token.get(PartOfSpeechAnnotation.class) + " ");
+			}
+		}
+		return pos.toString();
+	}
 }
