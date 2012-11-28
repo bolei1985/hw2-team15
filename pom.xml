@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.cmu.lti.11791.f12.hw2</groupId>
 	<artifactId>hw2-team15</artifactId>
@@ -60,7 +59,7 @@
 		<dependency>
 			<groupId>edu.cmu.lti.oaqa.openqa</groupId>
 			<artifactId>helloqa</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>1.0.1</version>
 		</dependency>
 		
 		<dependency>
@@ -84,4 +83,3 @@
 		<developerConnection>scm:git:git@github.com:bolei1985/hw2-team15.git</developerConnection>
 	</scm>
 </project>
->>>>>>> a43e276644245381927cfcabae46f73b4a33970c
