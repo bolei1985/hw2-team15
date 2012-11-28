@@ -1,22 +1,20 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.passage;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import org.jsoup.Jsoup;
 
 import edu.cmu.lti.oaqa.core.provider.solr.SolrWrapper;
 import edu.cmu.lti.oaqa.cse.basephase.ie.AbstractPassageExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
-import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
 
@@ -29,9 +27,11 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
     Integer serverPort = (Integer) aContext.getConfigParameterValue("port");
     Boolean embedded = (Boolean) aContext.getConfigParameterValue("embedded");
     String core = (String) aContext.getConfigParameterValue("core");
-    String keytermWindowScorer = (String) aContext.getConfigParameterValue("keytermWindowScorer");
-    System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
-    
+
+    // String keytermWindowScorer = (String)
+    // aContext.getConfigParameterValue("keytermWindowScorer");
+    // System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
+
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
@@ -40,25 +40,32 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   }
 
   @Override
-  protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterms,
+  protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterm,
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
+    int count = 1;
+    String[] querykeyterm = null;
+
     for (RetrievalResult document : documents) {
-      System.out.println("RetrievalResult: " + document.toString());
+      if (count == 1) {
+        String[] query = document.getQueryString().split(" \"");
+        querykeyterm = getQueryKeyTerm(query);
+        count = 0;
+      }
+
       String id = document.getDocID();
       try {
-        String text = wrapper.getDocText(id);
-        // System.out.println(text);
+        String htmlText = wrapper.getDocText(id);
+        // cleaning HTML text
+        String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/* .trim() */;
+        // for now, making sure the text isn't too long
+        text = text.substring(0, Math.min(5000, text.length()));
+        
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%");
+        System.out.println(text);
+        MingyansMultitextPassageFinder finder = new MingyansMultitextPassageFinder(id, text);
 
-        MingyansPassageCandidateFinder finder = new MingyansPassageCandidateFinder(id, text,
-                new KeytermWindowScorerSum());
-        List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
-          public String apply(Keyterm keyterm) {
-            return keyterm.getText();
-          }
-        });
-        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings
-                .toArray(new String[0]));
+        List<PassageCandidate> passageSpans = finder.extractPassages(querykeyterm);
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);
       } catch (SolrServerException e) {
@@ -72,5 +79,34 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   public void collectionProcessComplete() throws AnalysisEngineProcessException {
     super.collectionProcessComplete();
     wrapper.close();
+  }
+
+  protected String[] getQueryKeyTerm(String[] query) {
+    String[] queryword = new String[1];
+    List<String> querykeyterm = new LinkedList<String>();
+    for (String a : query) {
+      if (!a.contains("\"")) {
+        String[] b = a.split(" ");
+        for (String c : b) {
+//          System.out.println("###########");
+//          System.out.println(c);
+          querykeyterm.add(c);
+        }
+      }
+      if (a.endsWith("\"")) {
+//        System.out.println("!!!!!!!!!!!!");
+//        System.out.println(a.substring(0, a.length() - 1));
+        querykeyterm.add(a.substring(0, a.length() - 1));
+      }
+      if (a.contains("\" ")) {
+        String[] b = a.split("\" ");
+        for (String c : b) {
+//          System.out.println("@@@@@@@");
+//          System.out.println(c);
+          querykeyterm.add(c);
+        }
+      }
+    }
+    return querykeyterm.toArray(queryword);
   }
 }
