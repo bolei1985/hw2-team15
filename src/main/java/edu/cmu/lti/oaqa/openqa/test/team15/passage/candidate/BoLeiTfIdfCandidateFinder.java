@@ -1,12 +1,138 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
 public class BoLeiTfIdfCandidateFinder {
-  public List<PassageCandidate> extractPassages(List<String> keyterms) {
-    // TODO
-    return null;
+
+  private String documentId;
+
+  private static Logger logger = Logger.getLogger(BoLeiTfIdfCandidateFinder.class);
+
+  public BoLeiTfIdfCandidateFinder(String documentId) {
+    this.documentId = documentId;
+  }
+
+  public List<PassageCandidate> extractPassages(String htmlText, List<String> keyterms) {
+    List<PassageCandidate> result = new LinkedList<PassageCandidate>();
+
+    HashMap<String, HashMap<PassageSpan, Float>> tfMap = new HashMap<String, HashMap<PassageSpan, Float>>();
+    HashMap<String, Float> idfMap = new HashMap<String, Float>();
+    List<PassageSpan> passages = new LinkedList<PassageSpan>();
+
+    int passageCount = 0;
+
+    Set<Integer> leftEdges = new HashSet<Integer>();
+    Set<Integer> rightEdges = new HashSet<Integer>();
+
+    for (String keyterm : keyterms) {
+      tfMap.put(keyterm, new HashMap<PassageSpan, Float>());
+      Pattern p = Pattern.compile(keyterm);
+      Matcher m = p.matcher(htmlText);
+      while (m.find()) {
+        leftEdges.add(m.start());
+        rightEdges.add(m.end());
+      }
+    }
+
+    for (int begin : leftEdges) {
+      for (int end : rightEdges) {
+        if (end <= begin) {
+          continue;
+        }
+        // inside one candidate passage
+        // calculate its TF:
+        passageCount++;
+        PassageSpan currentPassage = new PassageSpan(begin, end);
+
+        String passageHtmlText = htmlText.substring(begin, end);
+        String cleanedText = cleanHtmlTags(passageHtmlText);
+        String[] tokens = cleanedText.split(" ");
+        passages.add(currentPassage);
+        for (String keyterm : keyterms) {
+          int wordCount = 0;
+          for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].equalsIgnoreCase(keyterm)) {
+              wordCount++;
+            }
+          }
+          float frequency = ((float) wordCount) / ((float) tokens.length);
+          if (frequency > 0) {
+            tfMap.get(keyterm).put(currentPassage, frequency);
+          }
+        }
+      }
+    }
+
+    // calculate IDF for each key term
+    for (String keyterm : keyterms) {
+      int occurance = tfMap.get(keyterm).size();
+      float idf = (float) Math.log10(((double) passageCount) / ((double) occurance));
+      idfMap.put(keyterm, idf);
+    }
+
+    // calculate score for each passage
+    Iterator<PassageSpan> it = passages.iterator();
+    while (it.hasNext()) {
+      PassageSpan passage = it.next();
+      float score = 0f;
+      for (String keyterm : keyterms) {
+        float keytermTf = tfMap.get(keyterm).get(passage);
+        float keytermIdf = idfMap.get(keyterm);
+        score += keytermIdf * keytermTf;
+      }
+
+      try {
+        PassageCandidate candidate = new PassageCandidate(documentId, passage.begin, passage.end,
+                score, null);
+        result.add(candidate);
+      } catch (AnalysisEngineProcessException e) {
+        logger.error("", e);
+      }
+    }
+    return result;
+
+  }
+
+  private String cleanHtmlTags(String dirtyText) {
+    return dirtyText.replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", "");
+  }
+
+  private static class PassageSpan {
+    private static int count = 0;
+
+    private final int id = count++;
+
+    private int begin, end;
+
+    public PassageSpan(int begin, int end) {
+      this.begin = begin;
+      this.end = end;
+    }
+
+    @Override
+    public int hashCode() {
+      return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if ((obj instanceof PassageSpan) == false) {
+        return false;
+      }
+      PassageSpan span = (PassageSpan) obj;
+      return span.id == id ? true : false;
+    }
   }
 }
