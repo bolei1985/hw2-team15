@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.xml.DOMConfigurator;
 import org.apache.uima.UimaContext;
 import org.apache.uima.resource.ResourceInitializationException;
 
@@ -21,18 +22,20 @@ import edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.KeytermExpander;
 
 public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 	private KeytermExpander expander;
-
+	
+	
 	@Override
 	public void initialize(UimaContext c)
 			throws ResourceInitializationException {
 		super.initialize(c);
+    DOMConfigurator.configure("configuration/log4j.xml");
 		String expanderClassName = (String) c
 				.getConfigParameterValue("expander");
 		try {
 			@SuppressWarnings("unchecked")
 			Class<KeytermExpander> clz = (Class<KeytermExpander>) Class
 					.forName(expanderClassName);
-			expander = clz.getConstructor().newInstance(new Object[] {});
+			expander = clz.getConstructor(new Class[]{UimaContext.class}).newInstance(c);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
