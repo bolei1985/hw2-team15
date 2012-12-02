@@ -68,7 +68,7 @@ public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
       sp.parse(new InputSource(new StringReader(responseBody)), new BasicQueryResultXmlHandler(
               expandedKeyterms));
     } catch (Exception e) {
-      logger.error("", e);
+      logger.error("keyterm: "+ keyterm, e);
     }
     return new ArrayList<String>(expandedKeyterms);
   }

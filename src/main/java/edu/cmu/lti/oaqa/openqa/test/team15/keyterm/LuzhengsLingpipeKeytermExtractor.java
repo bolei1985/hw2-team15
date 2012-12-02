@@ -1,7 +1,6 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -63,7 +62,16 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
         while (it.hasNext()) {
           Chunk presentChunk = it.next();
           String presentTerm = questionPart.substring(presentChunk.start(), presentChunk.end());
-          keyterms.add(new Keyterm(presentTerm));
+
+          List<String> extentStrList = expander.expandKeyterm(presentTerm, "NN");
+          for (String extendedKeyterm : extentStrList) {
+            Keyterm kt = new Keyterm(extendedKeyterm);
+            if (extendedKeyterm.equals(presentTerm)) {
+              kt.setProbablity(1f);
+            }
+            kt.setProbablity(0.6f);
+            keyterms.add(kt);
+          }
         }
       } catch (ClassNotFoundException e) {
         System.err.println("No definition for the class has been found.");
@@ -93,67 +101,103 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
           logger.debug("key term: " + word);
           logger.debug("extended key terms: " + Arrays.toString(extentStrList.toArray()));
           for (String extendedKeyterm : extentStrList) {
-            keyterms.add(new Keyterm(extendedKeyterm));
+            Keyterm kt = new Keyterm(extendedKeyterm);
+            if (extendedKeyterm.equals(word)) {
+              kt.setProbablity(0.6f);
+            }
+            kt.setProbablity(0.36f);
+            keyterms.add(kt);
           }
         }
       }
     } catch (ResourceInitializationException e) {
       e.printStackTrace();
     }
-    return keyterms;
-  }
 
-  // get a list of POS of the keyterms
-  protected List<String> getPOSList(List<Keyterm> keyterms) {
-    List<String> posList = new ArrayList<String>();
-    try {
-      PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();
-      Iterator<Keyterm> keytermIt = keyterms.iterator();
-      while (keytermIt.hasNext()) {
-        String keyterm = keytermIt.next().toString();
-        String pos = posTaggerAnno.getPOS(keyterm);
-        posList.add(pos);
+    if (logger.isDebugEnabled()) {
+      Iterator<Keyterm> it = keyterms.iterator();
+      StringBuilder sb;
+      while (it.hasNext()) {
+        sb = new StringBuilder();
+        Keyterm presentKt = it.next();
+        sb.append(presentKt.toString() + presentKt.getProbability() + "\t");
+        logger.debug(sb.toString());
       }
-    } catch (ResourceInitializationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return null;
     }
 
-    // // write the POS of the keyterms into a file
+    // write the keyterms into a file
     // try {
     // PrintStream out = new PrintStream(
     // new BufferedOutputStream(new
-    // FileOutputStream("src/main/resources/output/pos.txt", true)));
-    // out.println(posList.toString());
+    // FileOutputStream("src/main/resources/output/keyterms.txt", true)));
+    // Iterator<Keyterm> it = keyterms.iterator();
+    // while(it.hasNext()) {
+    // Keyterm presentKt = it.next();
+    // out.print(presentKt.toString() + presentKt.getProbability() + " ");
+    // }
+    // out.println();
     // out.close();
     // } catch (IOException e) {
     // // TODO Auto-generated catch block
     // e.printStackTrace();
     // }
-    return posList;
+
+    return keyterms;
   }
 
-  // get a list of weight of the keyterms
-  protected List<Double> getWeightList(List<Keyterm> keyterms) {
-    List<Double> weightList = new ArrayList<Double>();
-    try {
-      PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();
-      Iterator<Keyterm> keytermIt = keyterms.iterator();
-      while (keytermIt.hasNext()) {
-        String keyterm = keytermIt.next().toString();
-        String pos = posTaggerAnno.getPOS(keyterm);
-        if (pos.matches("VB|VBP"))
-          weightList.add(0.3);
-        else
-          weightList.add(0.7);
-      }
-    } catch (ResourceInitializationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return null;
-    }
+  // // get a list of POS of the keyterms
+  // protected List<String> getPOSList(List<Keyterm> keyterms) {
+  // List<String> posList = new ArrayList<String>();
+  // try {
+  // PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();
+  // Iterator<Keyterm> keytermIt = keyterms.iterator();
+  // while (keytermIt.hasNext()) {
+  // String keyterm = keytermIt.next().toString();
+  // String pos = posTaggerAnno.getPOS(keyterm);
+  // posList.add(pos);
+  // }
+  // } catch (ResourceInitializationException e) {
+  // // TODO Auto-generated catch block
+  // e.printStackTrace();
+  // return null;
+  // }
+  //
+  // // write the POS of the keyterms into a file
+  // try {
+  // PrintStream out = new PrintStream(
+  // new BufferedOutputStream(new
+  // FileOutputStream("src/main/resources/output/pos.txt", true)));
+  // out.println(posList.toString());
+  // out.close();
+  // } catch (IOException e) {
+  // // TODO Auto-generated catch block
+  // e.printStackTrace();
+  // }
+  // return posList;
+  // }
 
-    return weightList;
-  }
+  // // get a list of weight of the keyterms
+  // protected List<Double> getWeightList(List<Keyterm> keyterms) {
+  // List<Double> weightList =
+  //
+  // new ArrayList<Double>();
+  // try {
+  // PosTagNamedEntityRecognizer posTaggerAnno = new PosTagNamedEntityRecognizer();
+  // Iterator<Keyterm> keytermIt = keyterms.iterator();
+  // while (keytermIt.hasNext()) {
+  // String keyterm = keytermIt.next().toString();
+  // String pos = posTaggerAnno.getPOS(keyterm);
+  // if (pos.matches("VB|VBP"))
+  // weightList.add(0.3);
+  // else
+  // weightList.add(0.7);
+  // }
+  // } catch (ResourceInitializationException e) {
+  // // TODO Auto-generated catch block
+  // e.printStackTrace();
+  // return null;
+  // }
+  //
+  // return weightList;
+  // }
 }

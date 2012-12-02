@@ -8,7 +8,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.jsoup.Jsoup;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 import edu.cmu.lti.oaqa.core.provider.solr.SolrWrapper;
 import edu.cmu.lti.oaqa.cse.basephase.ie.AbstractPassageExtractor;
@@ -44,12 +46,12 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
     int count = 1;
-    String[] querykeyterm = null;
+//    String[] querykeyterm = null;
 
     for (RetrievalResult document : documents) {
       if (count == 1) {
-        String[] query = document.getQueryString().split(" \"");
-        querykeyterm = getQueryKeyTerm(query);
+//        String[] query = document.getQueryString().split(" \"");
+//        querykeyterm = getQueryKeyTerm(query);
         count = 0;
       }
 
@@ -57,14 +59,19 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
       try {
         String htmlText = wrapper.getDocText(id);
         // cleaning HTML text
-        String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/*
-                                                                                          * .trim()
-                                                                                          */;
+//        String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/*
+//                                                                                          * .trim()
+//                                                                                          */;
         // for now, making sure the text isn't too long
-        text = text.substring(0, Math.min(5000, text.length()));
+        String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
 
         MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
-        List<PassageCandidate> passageSpans = finder.extractPassages(querykeyterm);
+        List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
+          public String apply(Keyterm keyterm) {
+            return keyterm.getText();
+          }
+        });        
+        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings.toArray(new String[0]));
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);
       } catch (SolrServerException e) {
