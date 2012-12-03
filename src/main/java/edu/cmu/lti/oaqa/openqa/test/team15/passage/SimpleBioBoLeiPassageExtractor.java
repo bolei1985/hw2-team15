@@ -6,9 +6,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
@@ -30,12 +27,7 @@ public class SimpleBioBoLeiPassageExtractor extends SimplePassageExtractor {
         String htmlText = wrapper.getDocText(id);
         htmlText = htmlText.substring(0, htmlText.length() > 7000 ? 7000 : htmlText.length());
         BoLeiTfIdfCandidateFinder finder = new BoLeiTfIdfCandidateFinder(id);
-        List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
-          public String apply(Keyterm keyterm) {
-            return keyterm.getText();
-          }
-        });
-        result.addAll(finder.extractPassages(htmlText, keytermStrings));
+        result.addAll(finder.extractPassages(htmlText, keyterms));
       } catch (SolrServerException e) {
         logger.error("", e);
       }

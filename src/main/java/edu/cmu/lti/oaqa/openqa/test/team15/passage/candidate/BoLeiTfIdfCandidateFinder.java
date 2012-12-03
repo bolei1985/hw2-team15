@@ -12,6 +12,10 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
 public class BoLeiTfIdfCandidateFinder {
@@ -24,8 +28,13 @@ public class BoLeiTfIdfCandidateFinder {
     this.documentId = documentId;
   }
 
-  public List<PassageCandidate> extractPassages(String htmlText, List<String> keyterms) {
+  public List<PassageCandidate> extractPassages(String htmlText, List<Keyterm> keyterms) {
     List<PassageCandidate> result = new LinkedList<PassageCandidate>();
+    List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
+      public String apply(Keyterm keyterm) {
+        return keyterm.getText();
+      }
+    });
 
     HashMap<String, HashMap<PassageSpan, Float>> tfMap = new HashMap<String, HashMap<PassageSpan, Float>>();
     HashMap<String, Float> idfMap = new HashMap<String, Float>();
@@ -36,7 +45,7 @@ public class BoLeiTfIdfCandidateFinder {
     Set<Integer> leftEdges = new HashSet<Integer>();
     Set<Integer> rightEdges = new HashSet<Integer>();
 
-    for (String keyterm : keyterms) {
+    for (String keyterm : keytermStrings) {
       tfMap.put(keyterm, new HashMap<PassageSpan, Float>());
       Pattern p = Pattern.compile(keyterm);
       Matcher m = p.matcher(htmlText);
@@ -60,7 +69,7 @@ public class BoLeiTfIdfCandidateFinder {
         String cleanedText = cleanHtmlTags(passageHtmlText);
         String[] tokens = cleanedText.split(" ");
         passages.add(currentPassage);
-        for (String keyterm : keyterms) {
+        for (String keyterm : keytermStrings) {
           int wordCount = 0;
           for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].equalsIgnoreCase(keyterm)) {
@@ -76,7 +85,7 @@ public class BoLeiTfIdfCandidateFinder {
     }
 
     // calculate IDF for each key term
-    for (String keyterm : keyterms) {
+    for (String keyterm : keytermStrings) {
       int occurance = tfMap.get(keyterm).size();
       float idf = (float) Math.log10(((double) passageCount) / ((double) occurance));
       idfMap.put(keyterm, idf);
@@ -87,13 +96,13 @@ public class BoLeiTfIdfCandidateFinder {
     while (it.hasNext()) {
       PassageSpan passage = it.next();
       float score = 0f;
-      for (String keyterm : keyterms) {
+      for (Keyterm keyterm : keyterms) {
         float keytermTf = 0f;
-        if(tfMap.get(keyterm).containsKey(passage)){
-          keytermTf =  tfMap.get(keyterm).get(passage);
+        if (tfMap.get(keyterm.getText()).containsKey(passage)) {
+          keytermTf = tfMap.get(keyterm.getText()).get(passage);
         }
-        float keytermIdf = idfMap.get(keyterm);
-        score += keytermIdf * keytermTf;
+        float keytermIdf = idfMap.get(keyterm.getText());
+        score += keytermIdf * keytermTf * keyterm.getProbability();
       }
 
       try {
