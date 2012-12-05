@@ -29,6 +29,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
 
+  private static final String ENOUGH_NUMBER = "enough";
+
   private static Logger logger = Logger.getLogger(BoLeiGeneNameVariantKeytermExpander.class);
 
   private HttpClient httpclient;
@@ -68,7 +70,11 @@ public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
       sp.parse(new InputSource(new StringReader(responseBody)), new BasicQueryResultXmlHandler(
               expandedKeyterms));
     } catch (Exception e) {
-      logger.error("", e);
+      if (e.getMessage().equals(ENOUGH_NUMBER)) {
+        logger.debug("enough variants for keyterm: " + keyterm);
+      } else {
+        logger.error("", e);
+      }
     }
     return new ArrayList<String>(expandedKeyterms);
   }
@@ -85,12 +91,17 @@ public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
   private class BasicQueryResultXmlHandler extends DefaultHandler {
     private Set<String> keytermList;
 
+    private final int maxNumber = 10;
+
+    private int keyTermCount;
+
     private String tempVal;
 
     private String tempTagName;
 
     private BasicQueryResultXmlHandler(Set<String> expandedKeyterms) {
       keytermList = expandedKeyterms;
+      keyTermCount = 0;
     }
 
     @Override
@@ -101,6 +112,9 @@ public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
+      if (keyTermCount >= maxNumber) {
+        throw new SAXException(ENOUGH_NUMBER);
+      }
       tempTagName = qName;
     }
 
@@ -108,7 +122,9 @@ public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
     public void endElement(String uri, String localName, String qName) throws SAXException {
       if (tempTagName.equals("variant_name")) {
         keytermList.add(tempVal);
+        keyTermCount++;
       }
     }
+
   }
 }

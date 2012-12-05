@@ -9,13 +9,14 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import edu.cmu.lti.oaqa.core.provider.solr.SolrWrapper;
 import edu.cmu.lti.oaqa.cse.basephase.ie.AbstractPassageExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
-import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
-import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
 
@@ -45,12 +46,12 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
     int count = 1;
-    String[] querykeyterm = null;
+//    String[] querykeyterm = null;
 
     for (RetrievalResult document : documents) {
       if (count == 1) {
-        String[] query = document.getQueryString().split(" \"");
-        querykeyterm = getQueryKeyTerm(query);
+//        String[] query = document.getQueryString().split(" \"");
+//        querykeyterm = getQueryKeyTerm(query);
         count = 0;
       }
 
@@ -58,13 +59,19 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
       try {
         String htmlText = wrapper.getDocText(id);
         // cleaning HTML text
-        //String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/* .trim() */;
+//        String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/*
+//                                                                                          * .trim()
+//                                                                                          */;
         // for now, making sure the text isn't too long
-        //text = text.substring(0, Math.min(5000, text.length()));
-        
-        PassageCandidateFinder finder = new PassageCandidateFinder(id, htmlText,
-                new KeytermWindowScorerSum());
-        List<PassageCandidate> passageSpans = finder.extractPassages(querykeyterm);
+        String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
+
+        MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
+        List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
+          public String apply(Keyterm keyterm) {
+            return keyterm.getText();
+          }
+        });        
+        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings.toArray(new String[0]));
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);
       } catch (SolrServerException e) {
@@ -87,21 +94,21 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
       if (!a.contains("\"")) {
         String[] b = a.split(" ");
         for (String c : b) {
-//          System.out.println("###########");
-//          System.out.println(c);
+          // System.out.println("###########");
+          // System.out.println(c);
           querykeyterm.add(c);
         }
       }
       if (a.endsWith("\"")) {
-//        System.out.println("!!!!!!!!!!!!");
-//        System.out.println(a.substring(0, a.length() - 1));
+        // System.out.println("!!!!!!!!!!!!");
+        // System.out.println(a.substring(0, a.length() - 1));
         querykeyterm.add(a.substring(0, a.length() - 1));
       }
       if (a.contains("\" ")) {
         String[] b = a.split("\" ");
         for (String c : b) {
-//          System.out.println("@@@@@@@");
-//          System.out.println(c);
+          // System.out.println("@@@@@@@");
+          // System.out.println(c);
           querykeyterm.add(c);
         }
       }
