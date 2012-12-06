@@ -16,12 +16,12 @@ import edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.CandidateFinder;
 import edu.cmu.lti.oaqa.openqa.test.team15.passage.split.DoNothingSplitter;
 import edu.cmu.lti.oaqa.openqa.test.team15.passage.split.DocumentSplitter;
 
-public class SimpleTeam15PassageExtractor extends SimplePassageExtractor {
+public class Team15PassageExtractor extends SimplePassageExtractor {
   private CandidateFinder finder;
 
   private DocumentSplitter splitter = new DoNothingSplitter();
 
-  private Logger logger = Logger.getLogger(SimpleTeam15PassageExtractor.class);
+  private Logger logger = Logger.getLogger(Team15PassageExtractor.class);
 
   @Override
   public void initialize(UimaContext aContext) throws ResourceInitializationException {
