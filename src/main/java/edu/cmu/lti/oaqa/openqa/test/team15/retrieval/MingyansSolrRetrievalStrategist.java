@@ -20,7 +20,7 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
 
   protected SolrWrapper wrapper;
 
-  protected String synAPI = null;
+//  protected String synAPI = null;
 
   @Override
   public void initialize(UimaContext aContext) throws ResourceInitializationException {
@@ -55,14 +55,15 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     for (Keyterm keyterm : keyterms) {
       String key = keyterm.getText();
       double value = keyterm.getProbability();
-      if (value == 1.0)
+      if (value == 1.0 && result.length() == 0)
+        result.append(key + " ");
+      else if (value == 1.0)
         result.append("AND(" + key + ") ");
       else
         result.append(key + " ");
     }
-
     String query = result.toString();
-    System.out.println("!!!!!!!!!" + " QUERY: " + query);
+    System.out.println(" QUERY: " + query);
     return query;
   }
 

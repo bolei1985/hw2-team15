@@ -30,7 +30,7 @@ pipeline:
   - inherit: jdbc.sqlite.cse.phase  
     name: passage-extractor
     options: |
-      - inherit: hellobioqa.team15.passage.team15simple
+      - inherit: hellobioqa.team15.passage.team15-passage
 #      - inherit: hellobioqa.team15.passage.mingyans-passage
       #- inherit: hellobioqa.team15.passage.boleisimple
       #- inherit: hellobioqa.team15.passage.simple

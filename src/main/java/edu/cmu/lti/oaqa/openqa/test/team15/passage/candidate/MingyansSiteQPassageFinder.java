@@ -15,13 +15,10 @@ import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
 public class MingyansSiteQPassageFinder implements CandidateFinder {
+  double alpha = 1.0;
 
   public List<PassageCandidate> extractPassages(String docId, String text, int startPos,
           List<Keyterm> keytermList) {
-    String[] keyterms = new String[keytermList.size()];
-    for (int i = 0; i < keyterms.length; i++) {
-      keyterms[i] = keytermList.get(i).getText();
-    }
     List<PassageSpan> matchedSpans = new ArrayList<PassageSpan>();
     List<PassageSpan> sentences = new ArrayList<PassageSpan>();
     List<PassageSpan> sentencewindows = new ArrayList<PassageSpan>();
@@ -30,8 +27,8 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
     iterator.setText(text);
     int start = iterator.first();
     for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
-      // System.out.println("!!!!!!!!!!!!!!!!!!" + text.substring(start, end));
-      sentences.add(new PassageSpan(text.substring(start, end), start, end));
+      System.out.println("!!!!!!!!!!!!!!!!!!" + text.substring(start, end));
+      sentences.add(new PassageSpan(text.substring(start, end), start, end, 0));
     }
 
     // one sentence to three sentence window
@@ -43,7 +40,7 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
                 + sentences.get(i + 2).text;
         int begin = sentences.get(i).begin;
         int end = sentences.get(i + 2).end + 2;
-        sentencewindows.add(new PassageSpan(window, begin, end));
+        sentencewindows.add(new PassageSpan(window, begin, end, 0));
       }
     }
 
@@ -51,26 +48,27 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
 
     for (PassageSpan sentence : sentencewindows) {
 
-      // System.out.println("@@@@@@@@@@@@@@@"+sentence.text);
+//      System.out.println("@@@@@@@@@@@@@@@" + sentence.text);
       int k = 0;
       int matched_cnt = 0;
       double Score1 = 0.0;
       // Find all keyterm matches.
 
-      for (String keyterm : keyterms) {
-        Pattern p = Pattern.compile(keyterm);
+      for (Keyterm keyterm : keytermList) {
+        Pattern p = Pattern.compile(keyterm.getText());
         Matcher m = p.matcher(sentence.text);
 
         while (m.find()) {
-          PassageSpan match = new PassageSpan(keyterm, m.start(), m.end());
+          PassageSpan match = new PassageSpan(keyterm.getText(), m.start(), m.end(),
+                  keyterm.getProbability());
           matchedSpans.add(match);
           k++;
         }
-      }
 
-      if (!matchedSpans.isEmpty()) {
-        Score1 += 0.25;
-        matched_cnt++;
+        if (!matchedSpans.isEmpty()) {
+          Score1 += keyterm.getProbability();
+          matched_cnt++;
+        }
       }
 
       double score = getScore(Score1, k, matched_cnt, matchedSpans);
@@ -94,7 +92,6 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
   protected double getScore(double Score1, int k, int matched_cnt, List<PassageSpan> matchedSpans) {
     double Score = 0.0;
     double Score2 = 0.0;
-    double alpha = 1.0;
     int dist = 0;
     double Score2_wgt = 0.0;
 
@@ -103,7 +100,8 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
 
     for (int i = 0; i < matchedSpans.size() - 1; i++) {
       dist = matchedSpans.get(i + 1).begin - matchedSpans.get(i).end;
-      Score2_wgt += 0.25 * 2 / (alpha * dist * dist);
+      Score2_wgt += (matchedSpans.get(i + 1).prob + matchedSpans.get(i).prob)
+              / (alpha * dist * dist);
     }
     Score2 = Score2_wgt * matched_cnt / (k - 1);
     Score = Score1 + Score2;
@@ -116,10 +114,13 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
 
     private String text;
 
-    public PassageSpan(String text, int begin, int end) {
+    private double prob;
+
+    public PassageSpan(String text, int begin, int end, double prob) {
       this.begin = begin;
       this.end = end;
       this.text = text;
+      this.prob = prob;
     }
   }
 
