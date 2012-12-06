@@ -1,6 +1,7 @@
 class: edu.cmu.lti.oaqa.openqa.test.team15.keyterm.LuzhengsLingpipeKeytermExtractor
 
-expander: edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.BoLeiGeneNameVariantKeytermExpander
+expander1: edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.BoLeiGeneNameVariantKeytermExpander
+expander2: edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.MingyangSynonymKeytermExpander
 
 query-server-root-url: swissvar.expasy.org
 query-server-path: /cgi-bin/swissvar/result

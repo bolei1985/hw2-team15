@@ -22,7 +22,7 @@ public class MingyangSynonymKeytermExpander extends KeytermExpander {
 
   @Override
   public List<String> expandKeyterm(String keyterm, String pos) {
-    List<String> strResult = null;
+    List<String> strResult = new LinkedList<String>();
     try {
       URL url = new URL(synAPI + keyterm + "/");
       System.out.println(url);
@@ -31,7 +31,6 @@ public class MingyangSynonymKeytermExpander extends KeytermExpander {
       InputStream in = urlConnection.getInputStream();
       BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
       String line;
-      strResult = new LinkedList<String>();
       int count = 2;
       while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
