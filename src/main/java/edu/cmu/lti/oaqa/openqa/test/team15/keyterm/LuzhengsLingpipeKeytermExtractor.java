@@ -62,14 +62,14 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
         while (it.hasNext()) {
           Chunk presentChunk = it.next();
           String presentTerm = questionPart.substring(presentChunk.start(), presentChunk.end());
-
+          
           List<String> extentStrList = expander.expandKeyterm(presentTerm, "NN");
           for (String extendedKeyterm : extentStrList) {
             Keyterm kt = new Keyterm(extendedKeyterm);
-            if (extendedKeyterm.equals(presentTerm)) {
+            if (extendedKeyterm.equals(presentTerm))
               kt.setProbablity(1f);
-            }
-            kt.setProbablity(0.6f);
+            else
+              kt.setProbablity(0.6f);
             keyterms.add(kt);
           }
         }
@@ -102,10 +102,10 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
           logger.debug("extended key terms: " + Arrays.toString(extentStrList.toArray()));
           for (String extendedKeyterm : extentStrList) {
             Keyterm kt = new Keyterm(extendedKeyterm);
-            if (extendedKeyterm.equals(word)) {
+            if (extendedKeyterm.equals(word))
               kt.setProbablity(0.6f);
-            }
-            kt.setProbablity(0.36f);
+            else
+              kt.setProbablity(0.36f);
             keyterms.add(kt);
           }
         }
