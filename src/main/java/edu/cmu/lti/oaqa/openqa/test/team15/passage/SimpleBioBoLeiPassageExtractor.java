@@ -26,8 +26,8 @@ public class SimpleBioBoLeiPassageExtractor extends SimplePassageExtractor {
       try {
         String htmlText = wrapper.getDocText(id);
         htmlText = htmlText.substring(0, htmlText.length() > 7000 ? 7000 : htmlText.length());
-        BoLeiTfIdfCandidateFinder finder = new BoLeiTfIdfCandidateFinder(id);
-        result.addAll(finder.extractPassages(htmlText, keyterms));
+        BoLeiTfIdfCandidateFinder finder = new BoLeiTfIdfCandidateFinder();
+        result.addAll(finder.extractPassages(id, htmlText, 0, keyterms));
       } catch (SolrServerException e) {
         logger.error("", e);
       }
