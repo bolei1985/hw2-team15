@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.jsoup.Jsoup;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -56,6 +57,7 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
 //        count = 0;
 //      }
 
+      
       String id = document.getDocID();
       try {
         String text = wrapper.getDocText(id);
@@ -64,15 +66,18 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
 //                                                                                          * .trim()
 //                                                                                          */;
         // for now, making sure the text isn't too long
-//        String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
+//        text = htmlText.substring(0, Math.min(5000, htmlText.length()));
 
         MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
         List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
           public String apply(Keyterm keyterm) {
             return keyterm.getText();
           }
-        });        
-        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings.toArray(new String[0]));
+        });  
+        for(String a:keytermStrings){
+      	  System.out.println("@@@@@@@@@@@@"+a);
+        }
+        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings.toArray(new String[1]));
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);
       } catch (SolrServerException e) {

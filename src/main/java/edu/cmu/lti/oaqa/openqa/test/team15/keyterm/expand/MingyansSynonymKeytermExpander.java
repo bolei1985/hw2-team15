@@ -11,18 +11,19 @@ import java.util.List;
 
 import org.apache.uima.UimaContext;
 
-public class MingyangSynonymKeytermExpander extends KeytermExpander {
+public class MingyansSynonymKeytermExpander extends KeytermExpander {
 
   private String synAPI;
 
-  public MingyangSynonymKeytermExpander(UimaContext c) {
+  public MingyansSynonymKeytermExpander(UimaContext c) {
     super(c);
     synAPI = (String) c.getConfigParameterValue("synapi");
   }
 
   @Override
   public List<String> expandKeyterm(String keyterm, String pos) {
-    List<String> strResult = null;
+    List<String> strResult = new LinkedList<String>();
+    strResult.add(keyterm);
     try {
       URL url = new URL(synAPI + keyterm + "/");
       System.out.println(url);
@@ -31,12 +32,12 @@ public class MingyangSynonymKeytermExpander extends KeytermExpander {
       InputStream in = urlConnection.getInputStream();
       BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
       String line;
-      strResult = new LinkedList<String>();
+      
       int count = 2;
       while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
         if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("adjective"))) {
-          strResult.add(res[2]);
+          strResult.add("\""+res[2]+"\"");
         }
         count--;
       }

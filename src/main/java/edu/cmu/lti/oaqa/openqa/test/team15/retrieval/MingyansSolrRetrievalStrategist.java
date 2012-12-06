@@ -71,7 +71,7 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     }
 
     String query = result.toString();
-    System.out.println(" QUERY: " + query);
+    System.out.println("!!!!!!!!!"+" QUERY: " + query);
     return query;
   }
 

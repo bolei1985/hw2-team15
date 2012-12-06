@@ -33,7 +33,7 @@ public class MingyansSiteQPassageFinder {
     iterator.setText(text);
     int start = iterator.first();
     for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
-      System.out.println("!!!!!!!!!!!!!!!!!!" + text.substring(start, end));
+//      System.out.println("!!!!!!!!!!!!!!!!!!" + text.substring(start, end));
       sentences.add(new PassageSpan(text.substring(start, end), start, end));
     }
 
@@ -54,7 +54,7 @@ public class MingyansSiteQPassageFinder {
 
     for (PassageSpan sentence : sentencewindows) {
 
-      System.out.println("@@@@@@@@@@@@@@@"+sentence.text);
+//      System.out.println("@@@@@@@@@@@@@@@"+sentence.text);
       int k = 0;
       int matched_cnt = 0;
       double Score1 = 0.0;
