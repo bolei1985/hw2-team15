@@ -1,11 +1,13 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,18 +20,15 @@ import com.google.common.collect.Lists;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
-public class BoLeiTfIdfCandidateFinder {
-
-  private String documentId;
+public class BoLeiTfIdfCandidateFinder implements CandidateFinder {
 
   private static Logger logger = Logger.getLogger(BoLeiTfIdfCandidateFinder.class);
 
-  public BoLeiTfIdfCandidateFinder(String documentId) {
-    this.documentId = documentId;
-  }
+  public List<PassageCandidate> extractPassages(String documentId, String text, int startPos,
+          List<Keyterm> keyterms) {
 
-  public List<PassageCandidate> extractPassages(String htmlText, List<Keyterm> keyterms) {
-    List<PassageCandidate> result = new LinkedList<PassageCandidate>();
+    // from high score to low score
+    TreeSet<PassageCandidate> resultSet = new TreeSet<PassageCandidate>(Collections.reverseOrder());
     List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
       public String apply(Keyterm keyterm) {
         return keyterm.getText();
@@ -48,7 +47,7 @@ public class BoLeiTfIdfCandidateFinder {
     for (String keyterm : keytermStrings) {
       tfMap.put(keyterm, new HashMap<PassageSpan, Float>());
       Pattern p = Pattern.compile(keyterm);
-      Matcher m = p.matcher(htmlText);
+      Matcher m = p.matcher(text);
       while (m.find()) {
         leftEdges.add(m.start());
         rightEdges.add(m.end());
@@ -65,7 +64,7 @@ public class BoLeiTfIdfCandidateFinder {
         passageCount++;
         PassageSpan currentPassage = new PassageSpan(begin, end);
 
-        String passageHtmlText = htmlText.substring(begin, end);
+        String passageHtmlText = text.substring(begin, end);
         String cleanedText = cleanHtmlTags(passageHtmlText);
         String[] tokens = cleanedText.split(" ");
         passages.add(currentPassage);
@@ -106,14 +105,16 @@ public class BoLeiTfIdfCandidateFinder {
       }
 
       try {
-        PassageCandidate candidate = new PassageCandidate(documentId, passage.begin, passage.end,
-                score, null);
-        result.add(candidate);
+        PassageCandidate candidate = new PassageCandidate(documentId, passage.begin + startPos,
+                passage.end + startPos, score, null);
+        resultSet.add(candidate);
       } catch (AnalysisEngineProcessException e) {
         logger.error("", e);
       }
     }
-    return result;
+    LinkedList<PassageCandidate> result = new LinkedList<PassageCandidate>(resultSet);
+
+    return result.subList(0, (resultSet.size() / 10));
 
   }
 

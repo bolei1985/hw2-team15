@@ -11,20 +11,18 @@ import java.util.regex.Pattern;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
+import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
-public class MingyansSiteQPassageFinder {
-  private String text;
+public class MingyansSiteQPassageFinder implements CandidateFinder {
 
-  private String docId;
-
-  public MingyansSiteQPassageFinder(String docId, String text) {
-    super();
-    this.text = text;
-    this.docId = docId;
-  }
-
-  public List<PassageCandidate> extractPassages(String[] keyterms) {
+  public List<PassageCandidate> extractPassages(String docId, String text, int startPos,
+          List<Keyterm> keytermList) {
+    //TODO: consider start position
+    String[] keyterms = new String[keytermList.size()];
+    for (int i = 0; i < keyterms.length; i++) {
+      keyterms[i] = keytermList.get(i).getText();
+    }
     List<PassageSpan> matchedSpans = new ArrayList<PassageSpan>();
     List<PassageSpan> sentences = new ArrayList<PassageSpan>();
     List<PassageSpan> sentencewindows = new ArrayList<PassageSpan>();
@@ -49,12 +47,12 @@ public class MingyansSiteQPassageFinder {
         sentencewindows.add(new PassageSpan(window, begin, end));
       }
     }
-    
+
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
 
     for (PassageSpan sentence : sentencewindows) {
 
-      System.out.println("@@@@@@@@@@@@@@@"+sentence.text);
+      System.out.println("@@@@@@@@@@@@@@@" + sentence.text);
       int k = 0;
       int matched_cnt = 0;
       double Score1 = 0.0;
@@ -98,18 +96,18 @@ public class MingyansSiteQPassageFinder {
     double Score2 = 0.0;
     double alpha = 1.0;
     int dist = 0;
-    double Score2_wgt=0.0;
+    double Score2_wgt = 0.0;
 
     ComparatorPassageSpan comparator = new ComparatorPassageSpan();
     Collections.sort(matchedSpans, comparator);
 
-    for(int i=0;i<matchedSpans.size()-1;i++){
-      dist=matchedSpans.get(i+1).begin-matchedSpans.get(i).end;
-      Score2_wgt+=0.25*2/(alpha*dist*dist);
+    for (int i = 0; i < matchedSpans.size() - 1; i++) {
+      dist = matchedSpans.get(i + 1).begin - matchedSpans.get(i).end;
+      Score2_wgt += 0.25 * 2 / (alpha * dist * dist);
     }
-    Score2=Score2_wgt*matched_cnt/(k-1);
-    Score=Score1+Score2;
-    
+    Score2 = Score2_wgt * matched_cnt / (k - 1);
+    Score = Score1 + Score2;
+
     return Score;
   }
 
