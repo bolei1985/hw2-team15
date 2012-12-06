@@ -46,7 +46,7 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterm,
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
-    int count = 1;
+//    int count = 1;
 //    String[] querykeyterm = null;
 
     for (RetrievalResult document : documents) {
@@ -58,13 +58,13 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
 
       String id = document.getDocID();
       try {
-        String htmlText = wrapper.getDocText(id);
+        String text = wrapper.getDocText(id);
         // cleaning HTML text
 //        String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/*
 //                                                                                          * .trim()
 //                                                                                          */;
         // for now, making sure the text isn't too long
-        String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
+//        String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
 
         MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
         List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
