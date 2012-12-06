@@ -61,7 +61,7 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
         // * .trim()
         // */;
         // for now, making sure the text isn't too long
-        // String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
+        // text = text.substring(0, Math.min(5000, text.length()));
 
         MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder();
         // List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
@@ -69,8 +69,11 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
         // return keyterm.getText();
         // }
         // });
-        // List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings.toArray(new
-        // String[0]));
+
+        // for(String a:keytermStrings){
+        // System.out.println("@@@@@@@@@@@@"+a);
+        // }
+
         List<PassageCandidate> passageSpans = finder.extractPassages(id, text, 0, keyterm);
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);

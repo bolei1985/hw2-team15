@@ -10,14 +10,14 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
-public class MingyansMultitextPassageFinder {
+public class MingyansMultiTextPassageFinder {
   private String text;
 
   private String docId;
 
   private int textword;
 
-  public MingyansMultitextPassageFinder(String docId, String text) {
+  public MingyansMultiTextPassageFinder(String docId, String text) {
     super();
     this.text = text;
     this.docId = docId;
@@ -31,7 +31,7 @@ public class MingyansMultitextPassageFinder {
 
     // Find all keyterm matches.
     for (String keyterm : keyterms) {
-      int ft = 0;
+      int ft = 1;
       Pattern p = Pattern.compile(keyterm);
       Matcher m = p.matcher(text);
       while (m.find()) {
@@ -75,7 +75,7 @@ public class MingyansMultitextPassageFinder {
           for (PassageSpan keytermMatch : keytermMatches) {
             if (keytermMatch.containedIn(begin, end)) {
               thisKeytermFound = true;
-              keytermweight = hash.get(keytermMatch);
+              keytermweight = hash.get(keytermMatch.text);
             }
           }
           if (thisKeytermFound) {
