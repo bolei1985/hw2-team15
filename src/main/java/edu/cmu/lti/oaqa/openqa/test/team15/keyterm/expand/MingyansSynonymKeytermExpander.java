@@ -12,7 +12,6 @@ import java.util.List;
 import org.apache.uima.UimaContext;
 
 import com.aliasi.tokenizer.PorterStemmerTokenizerFactory;
-import com.aliasi.tokenizer.TokenizerFactory;
 
 public class MingyansSynonymKeytermExpander extends KeytermExpander {
 
