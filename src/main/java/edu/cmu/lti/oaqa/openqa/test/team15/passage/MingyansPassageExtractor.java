@@ -17,7 +17,6 @@ import edu.cmu.lti.oaqa.cse.basephase.ie.AbstractPassageExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
-import edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansMultiTextPassageFinder;
 import edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
