@@ -55,10 +55,8 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     for (Keyterm keyterm : keyterms) {
       String key = keyterm.getText();
       double value = keyterm.getProbability();
-      if (value == 1.0 && result.length() == 0)
-        result.append(key + " ");
-      else if (value == 1.0)
-        result.append("AND(" + key + ") ");
+      if (value == 1.0)
+        result.append("#AND(" + key + ") ");
       else
         result.append(key + " ");
     }
