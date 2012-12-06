@@ -121,6 +121,9 @@ public class BoLeiGeneNameVariantKeytermExpander extends KeytermExpander {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
       if (tempTagName.equals("variant_name")) {
+        if (tempVal.startsWith("p.")) {
+          tempVal = tempVal.substring(2);
+        }
         keytermList.add(tempVal);
         keyTermCount++;
       }
