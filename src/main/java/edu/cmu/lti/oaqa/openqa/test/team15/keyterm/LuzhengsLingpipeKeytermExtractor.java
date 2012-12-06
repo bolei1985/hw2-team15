@@ -3,6 +3,7 @@ package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,8 @@ import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.KeytermExpander;
 
 public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
-  private KeytermExpander expander;
+  private KeytermExpander expander1;
+  private KeytermExpander expander2;
 
   private Logger logger = Logger.getLogger(LuzhengsLingpipeKeytermExtractor.class);
 
@@ -30,11 +32,15 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
   public void initialize(UimaContext c) throws ResourceInitializationException {
     super.initialize(c);
     DOMConfigurator.configure("configuration/log4j.xml");
-    String expanderClassName = (String) c.getConfigParameterValue("expander");
+    String expanderClassName1 = (String) c.getConfigParameterValue("expander1");
+    String expanderClassName2 = (String) c.getConfigParameterValue("expander2");
     try {
       @SuppressWarnings("unchecked")
-      Class<KeytermExpander> clz = (Class<KeytermExpander>) Class.forName(expanderClassName);
-      expander = clz.getConstructor(new Class[] { UimaContext.class }).newInstance(c);
+      Class<KeytermExpander> clz1 = (Class<KeytermExpander>) Class.forName(expanderClassName1);
+      expander1 = clz1.getConstructor(new Class[] { UimaContext.class }).newInstance(c);
+      @SuppressWarnings("unchecked")
+      Class<KeytermExpander> clz2 = (Class<KeytermExpander>) Class.forName(expanderClassName2);
+      expander2 = clz2.getConstructor(new Class[] { UimaContext.class }).newInstance(c);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -63,8 +69,11 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
           Chunk presentChunk = it.next();
           String presentTerm = questionPart.substring(presentChunk.start(), presentChunk.end());
           
-          List<String> extentStrList = expander.expandKeyterm(presentTerm, "NN");
-          for (String extendedKeyterm : extentStrList) {
+          // do term extension
+          Set<String> extendStrSet = new HashSet<String>();
+          extendStrSet.addAll(expander1.expandKeyterm(presentTerm, "NN"));
+          extendStrSet.addAll(expander2.expandKeyterm(presentTerm, "NN"));
+          for (String extendedKeyterm : extendStrSet) {
             Keyterm kt = new Keyterm(extendedKeyterm);
             if (extendedKeyterm.equals(presentTerm))
               kt.setProbablity(1f);
@@ -97,10 +106,14 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
             continue;
           // TODO expand keyterm
 
-          List<String> extentStrList = expander.expandKeyterm(word, pos);
+          // do term extension
+          Set<String> extendStrSet = new HashSet<String>();
+          extendStrSet.addAll(expander1.expandKeyterm(word, pos));
+          extendStrSet.addAll(expander2.expandKeyterm(word, pos));
+          
           logger.debug("key term: " + word);
-          logger.debug("extended key terms: " + Arrays.toString(extentStrList.toArray()));
-          for (String extendedKeyterm : extentStrList) {
+          logger.debug("extended key terms: " + Arrays.toString(extendStrSet.toArray()));
+          for (String extendedKeyterm : extendStrSet) {
             Keyterm kt = new Keyterm(extendedKeyterm);
             if (extendedKeyterm.equals(word))
               kt.setProbablity(0.6f);

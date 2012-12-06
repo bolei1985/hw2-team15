@@ -32,12 +32,11 @@ public class MingyansSynonymKeytermExpander extends KeytermExpander {
       InputStream in = urlConnection.getInputStream();
       BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
       String line;
-      
       int count = 2;
       while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
-        if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("adjective"))) {
-          strResult.add("\""+res[2]+"\"");
+        if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("verb"))) {
+          strResult.add(res[2]);
         }
         count--;
       }
