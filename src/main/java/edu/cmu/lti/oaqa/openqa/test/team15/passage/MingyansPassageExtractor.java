@@ -17,6 +17,7 @@ import edu.cmu.lti.oaqa.cse.basephase.ie.AbstractPassageExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
+import edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
 
@@ -49,11 +50,11 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
 //    String[] querykeyterm = null;
 
     for (RetrievalResult document : documents) {
-      if (count == 1) {
-//        String[] query = document.getQueryString().split(" \"");
+//      if (count == 1) {
+//      String[] query = document.getQueryString().split(" \"");
 //        querykeyterm = getQueryKeyTerm(query);
-        count = 0;
-      }
+//        count = 0;
+//      }
 
       String id = document.getDocID();
       try {

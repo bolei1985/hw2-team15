@@ -1,4 +1,4 @@
-package edu.cmu.lti.oaqa.openqa.test.team15.passage;
+package edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
