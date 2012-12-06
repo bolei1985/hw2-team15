@@ -119,7 +119,7 @@ public class BoLeiTfIdfCandidateFinder implements CandidateFinder {
   }
 
   private String cleanHtmlTags(String dirtyText) {
-    return dirtyText.replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", "");
+    return dirtyText.replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", " ");
   }
 
   private static class PassageSpan {
