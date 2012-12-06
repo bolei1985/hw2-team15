@@ -52,26 +52,17 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
 
   protected String formulateQuery(List<Keyterm> keyterms) {
     StringBuffer result = new StringBuffer();
-
     for (Keyterm keyterm : keyterms) {
       String key = keyterm.getText();
-      result.append(key + " ");
-      // String[] keys = key.split(" ");
-      // PorterStemmerTokenizerFactory factory = new PorterStemmerTokenizerFactory(factory);
-      // for (String a : keys) {
-      // List<String> json = HttpGet(a);
-      //
-      // if (json != null) {
-      // for (String j : json) {
-      // result.append("\"" + j + "\"" + " ");
-      // System.out.println(j);
-      // }
-      // }
-      // }
+      double value = keyterm.getProbability();
+      if (value == 1.0)
+        result.append("AND(" + key + ") ");
+      else
+        result.append(key + " ");
     }
 
     String query = result.toString();
-    System.out.println("!!!!!!!!!"+" QUERY: " + query);
+    System.out.println("!!!!!!!!!" + " QUERY: " + query);
     return query;
   }
 
@@ -95,28 +86,4 @@ public class MingyansSolrRetrievalStrategist extends AbstractRetrievalStrategist
     super.collectionProcessComplete();
     wrapper.close();
   }
-
-  // private List<String> HttpGet(String word) {
-  // List<String> strResult = null;
-  // try {
-  // URL url = new URL(synAPI + word + "/");
-  // System.out.println(url);
-  // URLConnection urlConnection = url.openConnection();
-  // urlConnection.setDoInput(true);
-  // InputStream in = urlConnection.getInputStream();
-  // BufferedReader br = new BufferedReader(new InputStreamReader(in, "gbk"));
-  // String line;
-  // strResult = new LinkedList<String>();
-  // int count = 2;
-  // while (((line = br.readLine()) != null) && count > 0) {
-  // String[] res = line.split("\\|");
-  // if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("adjective"))) {
-  // strResult.add(res[2]);
-  // }
-  // count--;
-  // }
-  // } catch (IOException e) {
-  // }
-  // return strResult;
-  // }
 }

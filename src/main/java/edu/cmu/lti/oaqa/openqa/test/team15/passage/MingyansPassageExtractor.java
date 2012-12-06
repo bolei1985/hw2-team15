@@ -66,17 +66,19 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
 //                                                                                          * .trim()
 //                                                                                          */;
         // for now, making sure the text isn't too long
-        text = text.substring(0, Math.min(5000, text.length()));
+//        text = text.substring(0, Math.min(5000, text.length()));
 
-        MingyansMultiTextPassageFinder finder = new MingyansMultiTextPassageFinder(id, text);
+        MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
         List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
           public String apply(Keyterm keyterm) {
             return keyterm.getText();
           }
         });  
+        
         for(String a:keytermStrings){
       	  System.out.println("@@@@@@@@@@@@"+a);
         }
+        
         List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings.toArray(new String[1]));
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);

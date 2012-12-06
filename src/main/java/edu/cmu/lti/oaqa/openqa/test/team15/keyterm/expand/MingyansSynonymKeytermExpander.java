@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.apache.uima.UimaContext;
 
+import com.aliasi.tokenizer.PorterStemmerTokenizerFactory;
+import com.aliasi.tokenizer.TokenizerFactory;
+
 public class MingyansSynonymKeytermExpander extends KeytermExpander {
 
   private String synAPI;
@@ -35,10 +38,16 @@ public class MingyansSynonymKeytermExpander extends KeytermExpander {
       int count = 2;
       while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
-        if (res[1].equals("syn") && (res[0].equals("noun") || res[0].equals("verb"))) {
+        if (res[1].equals("syn") && (res[0].equals("noun"))) {
           strResult.add(res[2]);
+          count--;
         }
-        count--;
+        if (res[1].equals("syn") && res[0].equals("verb")) {
+          System.out.println("@@@@@@@@@@@"+res[2]);
+          System.out.println("$$$$$$$$$$$"+PorterStemmerTokenizerFactory.stem(res[2]));
+          strResult.add(PorterStemmerTokenizerFactory.stem(res[2]));
+          count--;
+        }
       }
     } catch (IOException e) {
     }
