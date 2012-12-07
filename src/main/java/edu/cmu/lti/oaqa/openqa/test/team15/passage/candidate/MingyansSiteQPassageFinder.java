@@ -1,49 +1,52 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate;
 
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
+import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorer;
+import edu.cmu.lti.oaqa.openqa.test.team15.passage.Team15PassageExtractor;
 
-public class MingyansSiteQPassageFinder implements CandidateFinder {
+public class MingyansSiteQPassageFinder {
+  private String text;
+  private String docId;
 
-  public List<PassageCandidate> extractPassages(String docId, String text, int startPos,
-          List<Keyterm> keytermList) {
-    String[] keyterms = new String[keytermList.size()];
-    for (int i = 0; i < keyterms.length; i++) {
-      keyterms[i] = keytermList.get(i).getText();
-    }
+  double alpha = 2.0;
+
+  public MingyansSiteQPassageFinder(String docId, String text) {
+    super();
+    this.text = text;
+    this.docId = docId;
+  }
+
+  public List<PassageCandidate> extractPassages(List<Keyterm> keytermList) {
     List<PassageSpan> matchedSpans = new ArrayList<PassageSpan>();
-    List<PassageSpan> sentences = new ArrayList<PassageSpan>();
+    List<Integer> sentences = new ArrayList<Integer>();
     List<PassageSpan> sentencewindows = new ArrayList<PassageSpan>();
+
     // Get Sentence from Document text
-    BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.US);
-    iterator.setText(text);
-    int start = iterator.first();
-    for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
-      // System.out.println("!!!!!!!!!!!!!!!!!!" + text.substring(start, end));
-      sentences.add(new PassageSpan(text.substring(start, end), start, end));
+    Pattern p2 = Pattern.compile("[.?!] ");
+    Matcher m2 = p2.matcher(text);
+    sentences.add(0);
+    while (m2.find()) {
+      sentences.add(m2.end());
     }
 
     // one sentence to three sentence window
-    if (sentences.size() <= 2) {
-      sentencewindows = sentences;
+    if (sentences.size() <= 4) {
+      sentencewindows.add(new PassageSpan(text, 0, text.length(), 0));
     } else {
-      for (int i = 0; i < sentences.size() - 2; i++) {
-        String window = sentences.get(i).text + " " + sentences.get(i + 1).text + " "
-                + sentences.get(i + 2).text;
-        int begin = sentences.get(i).begin;
-        int end = sentences.get(i + 2).end + 2;
-        sentencewindows.add(new PassageSpan(window, begin, end));
+      for (int i = 0; i < sentences.size() - 4; i++) {
+        String window = text.substring(sentences.get(i), sentences.get(i + 3));
+        sentencewindows.add(new PassageSpan(window, i, i + 3, 0));
       }
     }
 
@@ -51,34 +54,33 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
 
     for (PassageSpan sentence : sentencewindows) {
 
-      // System.out.println("@@@@@@@@@@@@@@@"+sentence.text);
       int k = 0;
       int matched_cnt = 0;
       double Score1 = 0.0;
       // Find all keyterm matches.
 
-      for (String keyterm : keyterms) {
-        Pattern p = Pattern.compile(keyterm);
+      for (Keyterm keyterm : keytermList) {
+        Pattern p = Pattern.compile(keyterm.getText());
         Matcher m = p.matcher(sentence.text);
 
         while (m.find()) {
-          PassageSpan match = new PassageSpan(keyterm, m.start(), m.end());
+          PassageSpan match = new PassageSpan(keyterm.getText(), m.start(), m.end(),
+                  keyterm.getProbability());
           matchedSpans.add(match);
           k++;
         }
-      }
 
-      if (!matchedSpans.isEmpty()) {
-        Score1 += 0.25;
-        matched_cnt++;
+        if (!matchedSpans.isEmpty()) {
+          Score1 += keyterm.getProbability();
+          matched_cnt++;
+        }
       }
 
       double score = getScore(Score1, k, matched_cnt, matchedSpans);
 
       PassageCandidate window = null;
       try {
-        window = new PassageCandidate(docId, sentence.begin + startPos, sentence.end + startPos,
-                (float) score, null);
+        window = new PassageCandidate(docId, sentence.begin, sentence.end, (float) score, null);
       } catch (AnalysisEngineProcessException e) {
         e.printStackTrace();
       }
@@ -94,7 +96,6 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
   protected double getScore(double Score1, int k, int matched_cnt, List<PassageSpan> matchedSpans) {
     double Score = 0.0;
     double Score2 = 0.0;
-    double alpha = 1.0;
     int dist = 0;
     double Score2_wgt = 0.0;
 
@@ -103,7 +104,8 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
 
     for (int i = 0; i < matchedSpans.size() - 1; i++) {
       dist = matchedSpans.get(i + 1).begin - matchedSpans.get(i).end;
-      Score2_wgt += 0.25 * 2 / (alpha * dist * dist);
+      Score2_wgt += (matchedSpans.get(i + 1).prob + matchedSpans.get(i).prob)
+              / (alpha * dist * dist);
     }
     Score2 = Score2_wgt * matched_cnt / (k - 1);
     Score = Score1 + Score2;
@@ -116,10 +118,13 @@ public class MingyansSiteQPassageFinder implements CandidateFinder {
 
     private String text;
 
-    public PassageSpan(String text, int begin, int end) {
+    private double prob;
+
+    public PassageSpan(String text, int begin, int end, double prob) {
       this.begin = begin;
       this.end = end;
       this.text = text;
+      this.prob = prob;
     }
   }
 

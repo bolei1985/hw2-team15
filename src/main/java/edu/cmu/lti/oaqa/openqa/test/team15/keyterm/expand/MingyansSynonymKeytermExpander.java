@@ -38,6 +38,7 @@ public class MingyansSynonymKeytermExpander extends KeytermExpander {
       while (((line = br.readLine()) != null) && count > 0) {
         String[] res = line.split("\\|");
         if (res[1].equals("syn") && (res[0].equals("noun"))) {
+          System.out.println("@@@@@@@@@@@"+res[2]);
           strResult.add(res[2]);
           count--;
         }

@@ -111,8 +111,8 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
           extendStrSet.addAll(expander1.expandKeyterm(word, pos));
           extendStrSet.addAll(expander2.expandKeyterm(word, pos));
           
-          logger.debug("key term: " + word);
-          logger.debug("extended key terms: " + Arrays.toString(extendStrSet.toArray()));
+//          logger.debug("key term: " + word);
+//          logger.debug("extended key terms: " + Arrays.toString(extendStrSet.toArray()));
           for (String extendedKeyterm : extendStrSet) {
             Keyterm kt = new Keyterm(extendedKeyterm);
             if (extendedKeyterm.equals(word))
@@ -134,7 +134,7 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
         sb = new StringBuilder();
         Keyterm presentKt = it.next();
         sb.append(presentKt.toString() + presentKt.getProbability() + "\t");
-        logger.debug(sb.toString());
+//        logger.debug(sb.toString());
       }
     }
     return keyterms;
