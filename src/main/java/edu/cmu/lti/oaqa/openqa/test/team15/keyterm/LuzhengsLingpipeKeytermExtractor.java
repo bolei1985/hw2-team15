@@ -2,12 +2,14 @@ package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.apache.uima.UimaContext;
@@ -24,6 +26,7 @@ import edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.KeytermExpander;
 
 public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
   private KeytermExpander expander1;
+
   private KeytermExpander expander2;
 
   private Logger logger = Logger.getLogger(LuzhengsLingpipeKeytermExtractor.class);
@@ -31,7 +34,10 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
   @Override
   public void initialize(UimaContext c) throws ResourceInitializationException {
     super.initialize(c);
-    DOMConfigurator.configure("configuration/log4j.xml");
+    DOMConfigurator configurator = new DOMConfigurator();
+    InputStream log4jConfigIn = this.getClass().getClassLoader()
+            .getResourceAsStream("configuration/log4j.xml");
+    configurator.doConfigure(log4jConfigIn, LogManager.getLoggerRepository());
     String expanderClassName1 = (String) c.getConfigParameterValue("expander1");
     String expanderClassName2 = (String) c.getConfigParameterValue("expander2");
     try {
@@ -68,7 +74,7 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
         while (it.hasNext()) {
           Chunk presentChunk = it.next();
           String presentTerm = questionPart.substring(presentChunk.start(), presentChunk.end());
-          
+
           // do term extension
           Set<String> extendStrSet = new HashSet<String>();
           extendStrSet.addAll(expander1.expandKeyterm(presentTerm, "NN"));
@@ -110,9 +116,9 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
           Set<String> extendStrSet = new HashSet<String>();
           extendStrSet.addAll(expander1.expandKeyterm(word, pos));
           extendStrSet.addAll(expander2.expandKeyterm(word, pos));
-          
-//          logger.debug("key term: " + word);
-//          logger.debug("extended key terms: " + Arrays.toString(extendStrSet.toArray()));
+
+          // logger.debug("key term: " + word);
+          // logger.debug("extended key terms: " + Arrays.toString(extendStrSet.toArray()));
           for (String extendedKeyterm : extendStrSet) {
             Keyterm kt = new Keyterm(extendedKeyterm);
             if (extendedKeyterm.equals(word))
@@ -134,7 +140,7 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
         sb = new StringBuilder();
         Keyterm presentKt = it.next();
         sb.append(presentKt.toString() + presentKt.getProbability() + "\t");
-//        logger.debug(sb.toString());
+        // logger.debug(sb.toString());
       }
     }
     return keyterms;
