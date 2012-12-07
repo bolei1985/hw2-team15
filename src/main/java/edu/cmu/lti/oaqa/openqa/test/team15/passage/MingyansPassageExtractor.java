@@ -9,11 +9,16 @@ import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import edu.cmu.lti.oaqa.core.provider.solr.SolrWrapper;
 import edu.cmu.lti.oaqa.cse.basephase.ie.AbstractPassageExtractor;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
+import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
+import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
 import edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
@@ -43,16 +48,26 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterm,
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
+    List<Keyterm> keytermList = new ArrayList<Keyterm>();
     // int count = 1;
     // String[] querykeyterm = null;
 
-    for (RetrievalResult document : documents) {
-      // if (count == 1) {
-      // String[] query = document.getQueryString().split(" \"");
-      // querykeyterm = getQueryKeyTerm(query);
-      // count = 0;
-      // }
+    for (Keyterm b : keyterm) {
+      if (b.getText().contains(" ") == false)
+        continue;
+      String[] a = b.getText().split(" ");
+      for (String c : a) {
+        Keyterm d = new Keyterm(c);
+        keytermList.add(d);
+        d.setProbablity((float) (b.getProbability() / a.length));
+      }
+    }
+    
+    for(Keyterm c:keytermList){
+      System.out.println("!!!!!!!!!!!!!!"+c.getText());
+    }
 
+    for (RetrievalResult document : documents) {
       String id = document.getDocID();
       try {
         String text = wrapper.getDocText(id);
@@ -61,20 +76,19 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
         // * .trim()
         // */;
         // for now, making sure the text isn't too long
-        // text = text.substring(0, Math.min(5000, text.length()));
+        text = text.substring(0, Math.min(7000, text.length()));
 
-        MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder();
-        // List<String> keytermStrings = Lists.transform(keyterm, new Function<Keyterm, String>() {
-        // public String apply(Keyterm keyterm) {
-        // return keyterm.getText();
-        // }
-        // });
-
-        // for(String a:keytermStrings){
-        // System.out.println("@@@@@@@@@@@@"+a);
-        // }
-
-        List<PassageCandidate> passageSpans = finder.extractPassages(id, text, 0, keyterm);
+//        MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
+//        List<PassageCandidate> passageSpans = finder.extractPassages(keytermList);
+        PassageCandidateFinder finder = new PassageCandidateFinder(id, text,
+                new KeytermWindowScorerSum());
+        List<String> keytermStrings = Lists.transform(keytermList, new Function<Keyterm, String>() {
+          public String apply(Keyterm keyterm) {
+            return keyterm.getText();
+          }
+        });
+        List<PassageCandidate> passageSpans = finder.extractPassages(keytermStrings
+                .toArray(new String[0]));
         for (PassageCandidate passageSpan : passageSpans)
           result.add(passageSpan);
       } catch (SolrServerException e) {
