@@ -53,18 +53,16 @@ public class Team15PassageExtractor extends SimplePassageExtractor {
       try {
         String docId = document.getDocID();
         String htmlText = wrapper.getDocText(docId);
-        // List<DocumentParagraph> paragraphList = splitter.splitDocument(htmlText);
-        logger.debug("\n------------------------------\n" + htmlText
-                + "\n--------------------------------\n");
-        // for (DocumentParagraph paragraph : paragraphList) {
-        // String rawText = paragraph.getRawText();
-        // logger.debug("splitted document:\n" + rawText);
-        // String text = Jsoup.parse(docText).text().replaceAll("([\177-\377\0-\32]*)", "");
-         String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
-        List<PassageCandidate> passageSpans = finder.extractPassages(docId, text, 0, keyterms);
-        // paragraph.getStartPosition(), keyterms);
-        result.addAll(passageSpans);
-        // }
+        List<DocumentParagraph> paragraphList = splitter.splitDocument(htmlText);
+        for (DocumentParagraph paragraph : paragraphList) {
+          String rawText = paragraph.getRawText();
+          logger.debug("splitted document:\n" + rawText);
+          // String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "");
+          String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
+          List<PassageCandidate> passageSpans = finder.extractPassages(docId, text,
+                  paragraph.getStartPosition(), keyterms);
+          result.addAll(passageSpans);
+        }
       } catch (SolrServerException e) {
         logger.error("", e);
       }

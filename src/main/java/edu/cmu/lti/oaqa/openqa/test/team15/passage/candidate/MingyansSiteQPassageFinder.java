@@ -7,16 +7,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
-import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorer;
-import edu.cmu.lti.oaqa.openqa.test.team15.passage.Team15PassageExtractor;
 
 public class MingyansSiteQPassageFinder {
   private String text;
+
   private String docId;
 
   double alpha = 2.0;

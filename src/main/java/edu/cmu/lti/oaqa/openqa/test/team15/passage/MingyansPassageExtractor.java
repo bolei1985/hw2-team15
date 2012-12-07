@@ -19,7 +19,6 @@ import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
 import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
-import edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
 
@@ -62,9 +61,9 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
         d.setProbablity((float) (b.getProbability() / a.length));
       }
     }
-    
-    for(Keyterm c:keytermList){
-      System.out.println("!!!!!!!!!!!!!!"+c.getText());
+
+    for (Keyterm c : keytermList) {
+      System.out.println("!!!!!!!!!!!!!!" + c.getText());
     }
 
     for (RetrievalResult document : documents) {
@@ -78,8 +77,8 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
         // for now, making sure the text isn't too long
         text = text.substring(0, Math.min(7000, text.length()));
 
-//        MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
-//        List<PassageCandidate> passageSpans = finder.extractPassages(keytermList);
+        // MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
+        // List<PassageCandidate> passageSpans = finder.extractPassages(keytermList);
         PassageCandidateFinder finder = new PassageCandidateFinder(id, text,
                 new KeytermWindowScorerSum());
         List<String> keytermStrings = Lists.transform(keytermList, new Function<Keyterm, String>() {
