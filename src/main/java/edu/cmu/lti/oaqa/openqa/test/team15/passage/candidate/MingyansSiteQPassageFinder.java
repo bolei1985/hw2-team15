@@ -12,20 +12,16 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
-public class MingyansSiteQPassageFinder {
-  private String text;
-
-  private String docId;
+public class MingyansSiteQPassageFinder implements CandidateFinder {
 
   double alpha = 2.0;
 
-  public MingyansSiteQPassageFinder(String docId, String text) {
+  public MingyansSiteQPassageFinder() {
     super();
-    this.text = text;
-    this.docId = docId;
   }
 
-  public List<PassageCandidate> extractPassages(List<Keyterm> keytermList) {
+  public List<PassageCandidate> extractPassages(String docId, String text, int startPosition,
+          List<Keyterm> keytermList) {
     List<PassageSpan> matchedSpans = new ArrayList<PassageSpan>();
     List<Integer> sentences = new ArrayList<Integer>();
     List<PassageSpan> sentencewindows = new ArrayList<PassageSpan>();
@@ -78,7 +74,8 @@ public class MingyansSiteQPassageFinder {
 
       PassageCandidate window = null;
       try {
-        window = new PassageCandidate(docId, sentence.begin, sentence.end, (float) score, null);
+        window = new PassageCandidate(docId, sentence.begin + startPosition, sentence.end
+                + startPosition, (float) score, null);
       } catch (AnalysisEngineProcessException e) {
         e.printStackTrace();
       }

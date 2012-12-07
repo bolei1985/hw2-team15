@@ -8,32 +8,33 @@ import java.util.regex.Pattern;
 
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 
-public class MingyansMultiTextPassageFinder {
-  private String text;
-
-  private String docId;
+public class MingyansMultiTextPassageFinder implements CandidateFinder {
 
   private int textword;
 
-  public MingyansMultiTextPassageFinder(String docId, String text) {
-    super();
-    this.text = text;
-    this.docId = docId;
-    this.textword = text.split(" ").length;
-  }
-
-  public List<PassageCandidate> extractPassages(String[] keyterms) {
+  @Override
+  public List<PassageCandidate> extractPassages(String documentId, String docText,
+          int startPosition, List<Keyterm> keytermList) {
     List<List<PassageSpan>> matchingSpans = new ArrayList<List<PassageSpan>>();
     List<PassageSpan> matchedSpans = new ArrayList<PassageSpan>();
     HashMap<String, Double> hash = new HashMap<String, Double>();
 
+    List<String> keytermStrings = Lists.transform(keytermList, new Function<Keyterm, String>() {
+      public String apply(Keyterm keyterm) {
+        return keyterm.getText();
+      }
+    });    
     // Find all keyterm matches.
-    for (String keyterm : keyterms) {
+    for (String keyterm : keytermStrings) {
       int ft = 1;
       Pattern p = Pattern.compile(keyterm);
-      Matcher m = p.matcher(text);
+      Matcher m = p.matcher(docText);
       while (m.find()) {
         PassageSpan match = new PassageSpan(m.start(), m.end(), keyterm);
         matchedSpans.add(match);
@@ -87,7 +88,8 @@ public class MingyansMultiTextPassageFinder {
         double score = totalwgts - keytermsFound * Math.log(end - begin + 1);
         PassageCandidate window = null;
         try {
-          window = new PassageCandidate(docId, begin, end, (float) score, null);
+          window = new PassageCandidate(documentId, begin + startPosition, end + startPosition,
+                  (float) score, null);
         } catch (AnalysisEngineProcessException e) {
           e.printStackTrace();
         }

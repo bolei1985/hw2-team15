@@ -32,7 +32,8 @@ pipeline:
     name: passage-extractor
     options: |
       - inherit: hellobioqa.team15.passage.mingyans-passage
-      #- inherit: hellobioqa.team15.passage.team15-passage
+      - inherit: hellobioqa.team15.passage.team15-passage
+      - inherit: hellobioqa.team15.passage.boleitfidf
       # - inherit: hellobioqa.team15.passage.simple
       #- inherit: hellobioqa.team15.passage.boleisimple
 
