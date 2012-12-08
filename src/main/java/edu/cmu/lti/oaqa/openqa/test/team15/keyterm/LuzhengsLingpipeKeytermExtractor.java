@@ -3,6 +3,8 @@ package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +31,8 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
 
   private KeytermExpander expander2;
 
+  private File modelFile;
+
   private Logger logger = Logger.getLogger(LuzhengsLingpipeKeytermExtractor.class);
 
   @Override
@@ -48,7 +52,14 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
       Class<KeytermExpander> clz2 = (Class<KeytermExpander>) Class.forName(expanderClassName2);
       expander2 = clz2.getConstructor(new Class[] { UimaContext.class }).newInstance(c);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("", e);
+    }
+    URL modelFileUrl = this.getClass().getClassLoader()
+            .getResource("model/ne-en-bio-genia.TokenShapeChunker");
+    try {
+      modelFile = new File(modelFileUrl.toURI());
+    } catch (URISyntaxException e) {
+      logger.error("", e);
     }
   }
 
@@ -60,8 +71,14 @@ public class LuzhengsLingpipeKeytermExtractor extends AbstractKeytermExtractor {
    * (java.lang.String)
    */
   protected List<Keyterm> getKeyterms(String question) {
-    File modelFile = new File("src/main/resources/model/ne-en-bio-genia.TokenShapeChunker");
+
+    // File modelFile = new File("src/main/resources/model/ne-en-bio-genia.TokenShapeChunker");
+
     List<Keyterm> keyterms = new ArrayList<Keyterm>();
+    if (modelFile == null) {
+      logger.error("model file is null!");
+      return keyterms;
+    }
 
     String[] questionParts = question.split("\\(|\\)");
     for (String questionPart : questionParts) {
