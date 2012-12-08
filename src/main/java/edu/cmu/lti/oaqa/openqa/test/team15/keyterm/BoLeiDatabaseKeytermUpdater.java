@@ -34,13 +34,14 @@ public class BoLeiDatabaseKeytermUpdater extends AbstractKeytermUpdater {
   @Override
   public void initialize(UimaContext c) throws ResourceInitializationException {
     super.initialize(c);
+    BufferedReader in = null;
     try {
       if (geneNames == null) {
 
         String geneNameFilePath = (String) c.getConfigParameterValue(GENE_NAME_FILE);
         File file = new File(geneNameFilePath);
 
-        BufferedReader in = new BufferedReader(new FileReader(file));
+        in = new BufferedReader(new FileReader(file));
         geneNames = new HashSet<String>();
         String line;
         while ((line = in.readLine()) != null) {
@@ -50,6 +51,14 @@ public class BoLeiDatabaseKeytermUpdater extends AbstractKeytermUpdater {
       }
     } catch (IOException e) {
       new ResourceInitializationException(e);
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
   }
 

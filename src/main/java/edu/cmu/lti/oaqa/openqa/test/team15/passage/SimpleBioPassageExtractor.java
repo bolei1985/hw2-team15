@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.jsoup.Jsoup;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -29,9 +28,10 @@ public class SimpleBioPassageExtractor extends SimplePassageExtractor {
         String htmlText = wrapper.getDocText(id);
 
         // cleaning HTML text
-        String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/* .trim() */;
+        // String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/*
+        // .trim() */;
         // for now, making sure the text isn't too long
-        text = text.substring(0, Math.min(5000, text.length()));
+        String text = htmlText.substring(0, Math.min(5000, htmlText.length()));
         System.out.println(text);
 
         PassageCandidateFinder finder = new PassageCandidateFinder(id, text,

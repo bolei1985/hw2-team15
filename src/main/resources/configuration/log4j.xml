@@ -13,7 +13,7 @@
 	</appender>
 
 	<appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
-		<param name="Threshold" value="DEBUG" />
+		<param name="Threshold" value="ERROR" />
 		<param name="File" value="hw2_team15.log" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d
@@ -21,12 +21,27 @@
 		</layout>
 	</appender>
 
+	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate"
+		additivity="true">
+		<priority value="debug" />
+		<appender-ref ref="fileAppender" />
+	</logger>
+	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand"
+		additivity="true">
+		<priority value="debug" />
+		<appender-ref ref="fileAppender" />
+	</logger>
 	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.passage"
 		additivity="true">
 		<level value="DEBUG" />
 		<appender-ref ref="fileAppender" />
 	</logger>
 	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.retrieval"
+		additivity="true">
+		<level value="DEBUG" />
+		<appender-ref ref="fileAppender" />
+	</logger>
+	<logger name="edu.cmu.lti.oaqa.openqa.test.team15.keyterm"
 		additivity="true">
 		<level value="DEBUG" />
 		<appender-ref ref="fileAppender" />

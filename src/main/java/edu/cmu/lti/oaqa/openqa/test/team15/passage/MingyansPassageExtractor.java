@@ -1,6 +1,7 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.passage;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -17,6 +18,7 @@ import edu.cmu.lti.oaqa.framework.data.Keyterm;
 import edu.cmu.lti.oaqa.framework.data.PassageCandidate;
 import edu.cmu.lti.oaqa.framework.data.RetrievalResult;
 import edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum;
+import edu.cmu.lti.oaqa.openqa.hello.passage.PassageCandidateFinder;
 
 public class MingyansPassageExtractor extends AbstractPassageExtractor {
 
@@ -29,8 +31,11 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
     Integer serverPort = (Integer) aContext.getConfigParameterValue("port");
     Boolean embedded = (Boolean) aContext.getConfigParameterValue("embedded");
     String core = (String) aContext.getConfigParameterValue("core");
-    String keytermWindowScorer = (String) aContext.getConfigParameterValue("keytermWindowScorer");
-    System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
+
+    // String keytermWindowScorer = (String)
+    // aContext.getConfigParameterValue("keytermWindowScorer");
+    // System.out.println("initialize() : keytermWindowScorer: " + keytermWindowScorer);
+
     try {
       this.wrapper = new SolrWrapper(serverUrl, serverPort, embedded, core);
     } catch (Exception e) {
@@ -39,19 +44,44 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   }
 
   @Override
-  protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterms,
+  protected List<PassageCandidate> extractPassages(String question, List<Keyterm> keyterm,
           List<RetrievalResult> documents) {
     List<PassageCandidate> result = new ArrayList<PassageCandidate>();
+    List<Keyterm> keytermList = new ArrayList<Keyterm>();
+    // int count = 1;
+    // String[] querykeyterm = null;
+
+    for (Keyterm b : keyterm) {
+      if (b.getText().contains(" ") == false)
+        continue;
+      String[] a = b.getText().split(" ");
+      for (String c : a) {
+        Keyterm d = new Keyterm(c);
+        keytermList.add(d);
+        d.setProbablity((float) (b.getProbability() / a.length));
+      }
+    }
+
+    for (Keyterm c : keytermList) {
+      System.out.println("!!!!!!!!!!!!!!" + c.getText());
+    }
+
     for (RetrievalResult document : documents) {
-      System.out.println("RetrievalResult: " + document.toString());
       String id = document.getDocID();
       try {
         String text = wrapper.getDocText(id);
-        // System.out.println(text);
+        // cleaning HTML text
+        // String text = Jsoup.parse(htmlText).text().replaceAll("([\177-\377\0-\32]*)", "")/*
+        // * .trim()
+        // */;
+        // for now, making sure the text isn't too long
+        text = text.substring(0, Math.min(7000, text.length()));
 
-        MingyansPassageCandidateFinder finder = new MingyansPassageCandidateFinder(id, text,
+        // MingyansSiteQPassageFinder finder = new MingyansSiteQPassageFinder(id, text);
+        // List<PassageCandidate> passageSpans = finder.extractPassages(keytermList);
+        PassageCandidateFinder finder = new PassageCandidateFinder(id, text,
                 new KeytermWindowScorerSum());
-        List<String> keytermStrings = Lists.transform(keyterms, new Function<Keyterm, String>() {
+        List<String> keytermStrings = Lists.transform(keytermList, new Function<Keyterm, String>() {
           public String apply(Keyterm keyterm) {
             return keyterm.getText();
           }
@@ -71,5 +101,34 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
   public void collectionProcessComplete() throws AnalysisEngineProcessException {
     super.collectionProcessComplete();
     wrapper.close();
+  }
+
+  protected String[] getQueryKeyTerm(String[] query) {
+    String[] queryword = new String[1];
+    List<String> querykeyterm = new LinkedList<String>();
+    for (String a : query) {
+      if (!a.contains("\"")) {
+        String[] b = a.split(" ");
+        for (String c : b) {
+          // System.out.println("###########");
+          // System.out.println(c);
+          querykeyterm.add(c);
+        }
+      }
+      if (a.endsWith("\"")) {
+        // System.out.println("!!!!!!!!!!!!");
+        // System.out.println(a.substring(0, a.length() - 1));
+        querykeyterm.add(a.substring(0, a.length() - 1));
+      }
+      if (a.contains("\" ")) {
+        String[] b = a.split("\" ");
+        for (String c : b) {
+          // System.out.println("@@@@@@@");
+          // System.out.println(c);
+          querykeyterm.add(c);
+        }
+      }
+    }
+    return querykeyterm.toArray(queryword);
   }
 }

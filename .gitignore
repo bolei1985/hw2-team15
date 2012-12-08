@@ -6,5 +6,9 @@
 *.ear
 /data
 /target
+<<<<<<< HEAD
 /hw2_team15.log
 /hw2_team15.log~
+=======
+/.settings
+>>>>>>> aa39f3a1f3814749dc515c159c855aca925ef863
