@@ -14,7 +14,8 @@ pipeline:
   - inherit: jdbc.sqlite.cse.phase
     name: keyterm-extractor
     options: |
-      - inherit: hellobioqa.team15.keyterm.luzhengsKeytermExtractorDescriptor
+      - inherit: hellobioqa.team15.keyterm.CthayurPosTagKeyTermExtractorDescriptor
+#      - inherit: hellobioqa.team15.keyterm.luzhengsKeytermExtractorDescriptor
 #      - inherit: hellobioqa.team15.keyterm.bolei-stanford-keyterm-extractor
 #      - inherit: hellobioqa.team15.keyterm.CthayurLingPipeKeyTerm
 #      - inherit: hellobioqa.team15.keyterm.Mingyang-keytermextractor

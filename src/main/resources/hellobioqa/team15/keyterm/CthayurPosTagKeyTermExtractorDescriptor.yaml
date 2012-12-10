@@ -1,0 +1,12 @@
+class: edu.cmu.lti.oaqa.openqa.test.team15.keyterm.CthayurPosTagKeytermExpander
+
+expander2: edu.cmu.lti.oaqa.openqa.test.team15.keyterm.expand.MingyansSynonymKeytermExpander
+
+query-server-root-url: swissvar.expasy.org
+query-server-path: /cgi-bin/swissvar/result
+format: xml
+
+synapi: http://words.bighugelabs.com/api/2/e292deaa9aed63cbd584671802cfcfd9/
+
+persistence-provider: |
+  inherit: ecd.default-log-persistence-provider
