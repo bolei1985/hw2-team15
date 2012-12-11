@@ -1,13 +1,12 @@
 package edu.cmu.lti.oaqa.openqa.test.team15.keyterm;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;

@@ -10,7 +10,7 @@ keytermWindowScorer: edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSu
 #candidateFinder: edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.BoLeiTfIdfCandidateFinder
 #candidateFinder: edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder
 cross-opts:
-candidateFinder: [edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.BoLeiTfIdfCandidateFinder, edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder]
+  candidateFinder: [edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.BoLeiTfIdfCandidateFinder, edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder]
 documentSplitter: edu.cmu.lti.oaqa.openqa.test.team15.passage.split.DoNothingSplitter
 
 persistence-provider: |

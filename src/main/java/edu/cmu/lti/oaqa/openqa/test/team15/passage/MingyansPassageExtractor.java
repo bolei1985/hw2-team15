@@ -62,9 +62,9 @@ public class MingyansPassageExtractor extends AbstractPassageExtractor {
       }
     }
 
-    for (Keyterm c : keytermList) {
-      System.out.println("!!!!!!!!!!!!!!" + c.getText());
-    }
+    // for (Keyterm c : keytermList) {
+    // System.out.println("!!!!!!!!!!!!!!" + c.getText());
+    // }
 
     for (RetrievalResult document : documents) {
       String id = document.getDocID();
