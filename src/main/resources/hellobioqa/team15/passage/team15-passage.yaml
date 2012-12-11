@@ -5,10 +5,10 @@ port: 9080
 keytermWindowScorer: edu.cmu.lti.oaqa.openqa.hello.passage.KeytermWindowScorerSum
 
 cross-opts:
-  candidateFinder: [edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansMultiTextPassageFinder, edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.BoLeiTfIdfCandidateFinder, edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder]
-  documentSplitter: [edu.cmu.lti.oaqa.openqa.test.team15.passage.split.ParagraphDocumentSplitter, edu.cmu.lti.oaqa.openqa.test.team15.passage.split.DoNothingSplitter]
+#  candidateFinder: [edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansMultiTextPassageFinder, edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.BoLeiTfIdfCandidateFinder, edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder]
+  documentSplitter: edu.cmu.lti.oaqa.openqa.test.team15.passage.split.DoNothingSplitter
 #candidateFinder: edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.BoLeiTfIdfCandidateFinder
-#candidateFinder: edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder
+candidateFinder: edu.cmu.lti.oaqa.openqa.test.team15.passage.candidate.MingyansSiteQPassageFinder
 
 persistence-provider: |
   inherit: ecd.default-log-persistence-provider
